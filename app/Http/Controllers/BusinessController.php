@@ -21,22 +21,25 @@ class BusinessController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'address' => 'nullable|string',
-            'website' => 'nullable|url',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
+            'website' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
             'bank_details' => 'nullable|string',
-            'logo' => 'nullable|image|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        $business = new \App\Models\Business($data);
+        $business->user_id = auth()->id();
+
         if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('logos', 'public');
+            $business->logo = $request->file('logo')->store('logos', 'public');
         }
 
-        auth()->user()->businesses()->create(array_merge($data, ['user_id' => auth()->id()]));
+        $business->save();
 
-        return redirect()->route('businesses.index');
+        return redirect()->route('businesses.index')->with('success', 'Business added successfully.');
     }
 
     public function edit($id)

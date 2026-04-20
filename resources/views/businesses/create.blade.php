@@ -22,9 +22,12 @@
                         <label
                             class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Business
                             Name</label>
-                        <input type="text" name="name" required
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
+                        <input type="text" name="name" value="{{ old('name') }}" required
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('name') border-red-500 @enderror"
                             placeholder="Enter business name">
+                        @error('name')
+                            <p class="text-[10px] text-red-500 mt-1 font-bold">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -32,17 +35,23 @@
                             <label
                                 class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Email
                                 Address</label>
-                            <input type="email" name="email"
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
+                            <input type="email" name="email" value="{{ old('email') }}"
+                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('email') border-red-500 @enderror"
                                 placeholder="contact@business.com">
+                            @error('email')
+                                <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label
                                 class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Phone
                                 Number</label>
-                            <input type="text" name="phone"
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
+                            <input type="text" name="phone" value="{{ old('phone') }}"
+                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('phone') border-red-500 @enderror"
                                 placeholder="+1 (555) 000-0000">
+                            @error('phone')
+                                <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -50,9 +59,12 @@
                         <label
                             class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Website
                             URL</label>
-                        <input type="text" name="website"
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
+                        <input type="text" name="website" value="{{ old('website') }}"
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('website') border-red-500 @enderror"
                             placeholder="https://www.business.com">
+                        @error('website')
+                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -60,16 +72,22 @@
                             class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Physical
                             Address</label>
                         <textarea name="address" rows="3"
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
-                            placeholder="Enter full business address"></textarea>
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('address') border-red-500 @enderror"
+                            placeholder="Enter full business address">{{ old('address') }}</textarea>
+                        @error('address')
+                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Bank
                             Details</label>
                         <textarea name="bank_details" rows="3"
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
-                            placeholder="Acc Name, Acc Number, IFSC/BIC, Branch..."></textarea>
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('bank_details') border-red-500 @enderror"
+                            placeholder="Acc Name, Acc Number, IFSC/BIC, Branch...">{{ old('bank_details') }}</textarea>
+                        @error('bank_details')
+                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -85,7 +103,7 @@
                         </div>
 
                         <div
-                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-100 border-dashed rounded-2xl bg-gray-50/50">
+                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-100 border-dashed rounded-2xl bg-gray-50/50 @error('logo') border-red-500 @enderror">
                             <div class="space-y-1 text-center">
                                 <i class="fas fa-cloud-upload-alt text-gray-300 text-3xl mb-4"></i>
                                 <div class="flex text-sm text-gray-600">
@@ -100,6 +118,9 @@
                                 </p>
                             </div>
                         </div>
+                        @error('logo')
+                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 

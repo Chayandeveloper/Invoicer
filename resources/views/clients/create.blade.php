@@ -21,9 +21,12 @@
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client
                             Name</label>
-                        <input type="text" name="name" required
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
-                            placeholder="Enter full name or company">
+                        <input type="text" name="name" value="{{ old('name') }}" required
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('name') border-red-500 @enderror"
+                            placeholder="Enter client or company name">
+                        @error('name')
+                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -31,7 +34,7 @@
                             Address</label>
                         <textarea name="address" rows="3"
                             class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
-                            placeholder="Enter physical or billing address"></textarea>
+                            placeholder="Enter physical or billing address">{{ old('address') }}</textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -39,18 +42,24 @@
                             <label
                                 class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Email
                                 Address</label>
-                            <input type="email" name="email"
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
-                                placeholder="client@example.com">
-                        </div>
+                             <input type="email" name="email" value="{{ old('email') }}"
+                                 class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('email') border-red-500 @enderror"
+                                 placeholder="client@email.com">
+                             @error('email')
+                                 <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                             @enderror
+                         </div>
                         <div>
                             <label
                                 class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Phone
                                 Number</label>
-                            <input type="text" name="phone"
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4"
-                                placeholder="+1 (000) 000-0000">
-                        </div>
+                             <input type="text" name="phone" value="{{ old('phone') }}"
+                                 class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('phone') border-red-500 @enderror"
+                                 placeholder="+1 (555) 000-0000">
+                             @error('phone')
+                                 <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
+                             @enderror
+                         </div>
                     </div>
 
                     <div>
