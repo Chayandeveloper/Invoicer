@@ -103,6 +103,7 @@
 
     <style>
         @media print {
+            @page { margin: 10mm; }
             .no-print {
                 display: none !important;
             }
@@ -113,7 +114,7 @@
             }
 
             .shadow-lg {
-                shadow: none;
+                box-shadow: none !important;
             }
         }
     </style>

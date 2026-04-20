@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-    <div class="relative bg-white shadow-lg rounded-lg border border-gray-200 p-8 max-w-4xl mx-auto text-gray-800 font-sans flex flex-col min-h-[29.7cm]"
+    <div class="relative bg-white shadow-lg rounded-lg border border-gray-200 p-8 max-w-4xl mx-auto text-gray-800 font-sans flex flex-col min-h-screen print:min-h-0"
         id="quotation">
     
     @if($quotation->sender_logo)
@@ -12,15 +12,15 @@
     @endif
         
         <!-- Row 1: Logo & Header -->
-        <div class="relative z-10 grid grid-cols-2 gap-2 mb-8 border-b border-gray-100 pb-6 items-start">
+        <div class="relative z-10 grid grid-cols-2 gap-2 mb-2 border-b border-gray-100 pb-2 items-start">
             <div class="flex items-start">
                 @if($quotation->sender_logo)
                     <img src="{{ Str::startsWith($quotation->sender_logo, 'http') ? $quotation->sender_logo : asset('storage/' . $quotation->sender_logo) }}"
-                        class="h-20 object-contain" alt="Business Logo">
+                        class="h-14 object-contain" alt="Business Logo">
                 @endif
             </div>
             <div class="text-right">
-                <h1 class="text-3xl font-extrabold text-primary tracking-tight mb-2 uppercase">QUOTATION</h1>
+                <h1 class="text-2xl font-extrabold text-primary tracking-tight mb-2 uppercase">QUOTATION</h1>
                 <div class="text-sm space-y-1 text-gray-600">
                     <p><span class="font-semibold text-gray-900">Quotation #:</span> {{ $quotation->quotation_number }}</p>
                     <p><span class="font-semibold text-gray-900">Date:</span> {{ \Carbon\Carbon::parse($quotation->quotation_date)->format('M d, Y') }}</p>
@@ -38,7 +38,7 @@
         </div>
 
         <!-- Row 2: Bill To & Bill From -->
-        <div class="relative z-10 grid grid-cols-2 gap-12 mb-10">
+        <div class="relative z-10 grid grid-cols-2 gap-12 mb-3">
             <!-- Bill To (Left) -->
             <div>
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Quote For</h3>
@@ -47,8 +47,8 @@
                         <img src="{{ asset('storage/' . $quotation->client_logo) }}" class="h-12 w-12 object-contain rounded border border-gray-100 p-1 bg-gray-50 flex-shrink-0" alt="Client Logo">
                     @endif
                     <div>
-                        <div class="text-gray-900 font-bold text-base mb-1">{{ $quotation->client_name }}</div>
-                        <div class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">{{ $quotation->client_address }}</div>
+                        <div class="text-gray-900 font-bold text-sm mb-1">{{ $quotation->client_name }}</div>
+                        <div class="text-gray-600 text-[11px] whitespace-pre-line leading-snug">{{ $quotation->client_address }}</div>
                         @if($quotation->client_phone)
                             <div class="text-gray-500 text-xs mt-1 font-medium"><i class="fas fa-phone-alt text-[10px] mr-1"></i> {{ $quotation->client_phone }}</div>
                         @endif
@@ -59,8 +59,8 @@
             <!-- Bill From (Right) -->
             <div class="text-right">
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">From</h3>
-                <div class="text-gray-900 font-bold text-base mb-1">{{ $quotation->sender_name }}</div>
-                <div class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">{{ $quotation->sender_address }}</div>
+                <div class="text-gray-900 font-bold text-sm mb-1">{{ $quotation->sender_name }}</div>
+                <div class="text-gray-600 text-[11px] whitespace-pre-line leading-snug">{{ $quotation->sender_address }}</div>
                 @if($quotation->sender_phone)
                     <div class="text-gray-600 text-xs mt-1 font-bold"><i class="fas fa-phone-alt text-[10px] mr-1"></i> {{ $quotation->sender_phone }}</div>
                 @endif
@@ -72,15 +72,15 @@
         </div>
 
         <!-- Row 3: Items Table -->
-        <div class="relative z-10 mb-8 overflow-hidden rounded-lg border border-gray-200">
+        <div class="relative z-10 mb-4 overflow-hidden rounded-lg border border-gray-200">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200 text-gray-900 uppercase tracking-wider text-xs font-semibold">
-                        <th class="py-3 px-4">Description</th>
-                        <th class="py-3 px-4 text-right w-24">Qty</th>
-                        <th class="py-3 px-4 text-right w-32">Price</th>
-                        <th class="py-3 px-4 text-right w-24">Tax</th>
-                        <th class="py-3 px-4 text-right w-32">Amount</th>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-gray-900 uppercase tracking-wider text-[10px] font-semibold">
+                        <th class="py-1 px-4">Description</th>
+                        <th class="py-1 px-4 text-right w-24">Qty</th>
+                        <th class="py-1 px-4 text-right w-32">Price</th>
+                        <th class="py-1 px-4 text-right w-24">Tax</th>
+                        <th class="py-1 px-4 text-right w-32">Amount</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-700">
@@ -91,11 +91,11 @@
                             $totalItemTax += $itemTax;
                         @endphp
                         <tr class="border-b border-gray-100 hover:bg-gray-50/50">
-                            <td class="py-3 px-4 font-medium">{{ $item->description }}</td>
-                            <td class="py-3 px-4 text-right">{{ $item->quantity }}</td>
-                            <td class="py-3 px-4 text-right">Rs. {{ number_format($item->unit_price, 2) }}</td>
-                            <td class="py-3 px-4 text-right">{{ $item->tax_rate > 0 ? $item->tax_rate . '%' : '-' }}</td>
-                            <td class="py-3 px-4 text-right font-bold text-gray-900">Rs. {{ number_format($item->amount, 2) }}</td>
+                            <td class="py-1 px-4 font-medium">{{ $item->description }}</td>
+                            <td class="py-1 px-4 text-right">{{ $item->quantity }}</td>
+                            <td class="py-1 px-4 text-right">Rs. {{ number_format($item->unit_price, 2) }}</td>
+                            <td class="py-1 px-4 text-right">{{ $item->tax_rate > 0 ? $item->tax_rate . '%' : '-' }}</td>
+                            <td class="py-1 px-4 text-right font-bold text-gray-900">Rs. {{ number_format($item->amount, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -103,7 +103,7 @@
         </div>
 
         <!-- Row 4: Totals -->
-        <div class="relative z-10 flex justify-end mb-12">
+        <div class="relative z-10 flex justify-end mb-4">
             <div class="w-full md:w-5/12 space-y-2">
                 <div class="flex justify-between py-1 border-b border-gray-100 text-sm">
                     <span class="font-medium text-gray-600">Subtotal</span>
@@ -121,7 +121,7 @@
                     <span class="font-bold text-gray-900">Rs. {{ number_format($quotation->subtotal * ($quotation->tax_rate / 100), 2) }}</span>
                 </div>
                 @endif
-                <div class="flex justify-between py-2 text-xl border-t-2 border-gray-900">
+                <div class="flex justify-between py-1 text-lg border-t-2 border-gray-900">
                     <span class="font-bold text-gray-900">Total Estimate</span>
                     <span class="font-extrabold text-primary">Rs. {{ number_format($quotation->total, 2) }}</span>
                 </div>
@@ -129,7 +129,7 @@
         </div>
 
         <!-- Row 5: Notes & QR -->
-        <div class="relative z-10 mt-auto pt-8 border-t border-gray-100 grid grid-cols-2 gap-8">
+        <div class="relative z-10 mt-auto pt-2 border-t border-gray-100 grid grid-cols-2 gap-8">
             <div>
                 <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Terms & Notes</h3>
                 <p class="text-xs text-gray-600 leading-relaxed italic">
@@ -215,15 +215,39 @@
 
     <style>
         @media print {
-            @page { size: A4; margin: 0mm; }
-            body * { visibility: hidden; }
-            #quotation, #quotation * { visibility: visible; }
-            #quotation {
-                position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm;
-                margin: 0; padding: 10mm; border: 1px solid #0C8D5D !important; box-sizing: border-box;
-                z-index: 9999; background-color: white; box-shadow: none; border-radius: 0;
+            @page {
+                size: A4;
+                margin: 10mm;
             }
-            .print\:hidden { display: none !important; }
+
+            body * {
+                visibility: hidden;
+            }
+
+            #quotation,
+            #quotation * {
+                visibility: visible;
+            }
+
+            #quotation {
+                position: relative;
+                top: 0;
+                left: 0;
+                width: 100%;
+                min-height: auto;
+                margin: 0;
+                padding: 5mm;
+                border: 1px solid #0C8D5D !important;
+                box-sizing: border-box;
+                z-index: 9999;
+                background-color: white;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .print\:hidden {
+                display: none !important;
+            }
         }
     </style>
 @endsection

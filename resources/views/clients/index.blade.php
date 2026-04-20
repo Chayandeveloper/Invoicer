@@ -46,9 +46,10 @@
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('clients.edit', $client->id) }}"
-                                        class="p-2.5 text-gray-400 hover:text-amber-600 transition bg-gray-50 rounded-xl"
-                                        title="Edit">
-                                        <i class="fas fa-edit"></i>
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white transition rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-primary/5"
+                                        title="View Details">
+                                        <i class="fas fa-eye text-[11px]"></i>
+                                        <span>View</span>
                                     </a>
                                 </div>
                             </td>

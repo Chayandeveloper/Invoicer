@@ -52,13 +52,13 @@ class BusinessController extends Controller
     {
         $business = auth()->user()->businesses()->findOrFail($id);
         $data = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'address' => 'nullable|string',
-            'website' => 'nullable|url',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
+            'website' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
             'bank_details' => 'nullable|string',
-            'logo' => 'nullable|image|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -71,6 +71,6 @@ class BusinessController extends Controller
 
         $business->update($data);
 
-        return redirect()->route('businesses.index');
+        return redirect()->route('businesses.index')->with('success', 'Business updated successfully.');
     }
 }

@@ -124,4 +124,22 @@
             @endif
         </div>
     </div>
+    <style>
+        @media print {
+            @page { margin: 10mm; }
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .shadow-sm {
+                box-shadow: none !important;
+            }
+            .rounded-2xl {
+                border-radius: 0 !important;
+            }
+        }
+    </style>
 @endsection

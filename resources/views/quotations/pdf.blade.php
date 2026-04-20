@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Quotation-{{ $quotation->quotation_number }}</title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 30px; line-height: 1.4; }
+        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 50px; line-height: 1.4; }
         .header { border-bottom: 2px solid #0C8D5D; padding-bottom: 20px; margin-bottom: 20px; }
         .logo { height: 60px; }
         .title { font-size: 28px; font-weight: bold; color: #0C8D5D; text-align: right; }
