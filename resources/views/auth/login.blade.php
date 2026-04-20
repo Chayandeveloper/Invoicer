@@ -153,7 +153,7 @@
         }
     </style>
     <!-- Clerk JS SDK -->
-    <script async crossorigin="anonymous" data-clerk-publishable-key="{{ env('CLERK_PUBLISHABLE_KEY') }}" src="https://{{ env('CLERK_FRONTEND_API') }}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
+    <script async crossorigin="anonymous" data-clerk-publishable-key="{{ env('CLERK_PUBLISHABLE_KEY') }}" src="{{ env('CLERK_FRONTEND_API') }}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
 
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -187,12 +187,20 @@
                 </div>
             @endif
 
-            <!-- Clerk Login -->
-            <a href="{{ route('login.clerk') }}" onclick="showLoader()"
-                class="btn-login-google flex items-center justify-center gap-3 w-full p-4 rounded-2xl font-black text-[13px] uppercase tracking-widest transition-all shadow-sm">
-                <i class="fas fa-user-shield text-primary text-lg"></i>
-                Sign in with Clerk
-            </a>
+            <!-- Clerk Login/Signup -->
+            <div class="space-y-3">
+                <a href="{{ route('register') }}"
+                    class="btn-primary flex items-center justify-center gap-3 w-full p-4 rounded-2xl font-black text-[13px] uppercase tracking-widest transition-all shadow-lg hover:shadow-primary/20">
+                    <i class="fas fa-user-plus text-lg"></i>
+                    Create New Account
+                </a>
+                
+                <a href="{{ route('login.clerk') }}" onclick="showLoader()"
+                    class="btn-login-google flex items-center justify-center gap-3 w-full p-4 rounded-2xl font-black text-[13px] uppercase tracking-widest transition-all shadow-sm">
+                    <i class="fas fa-user-shield text-primary text-lg"></i>
+                    Sign in with Google Account
+                </a>
+            </div>
 
             <div class="flex items-center gap-4 py-2">
                 <div class="flex-grow h-px bg-white/5"></div>

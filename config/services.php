@@ -42,6 +42,7 @@ return [
     ],
 
     'clerk' => [
+        'base_url' => env('CLERK_API_URL'),
         'api_url' => env('CLERK_API_URL'),
         'api_key' => env('CLERK_API_KEY'),
         'client_id' => env('CLERK_CLIENT_ID'),

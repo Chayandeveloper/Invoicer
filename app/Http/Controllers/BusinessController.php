@@ -59,6 +59,10 @@ class BusinessController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
+            // Delete old logo if exists
+            if ($business->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($business->logo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($business->logo);
+            }
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         }
 

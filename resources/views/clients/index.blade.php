@@ -27,7 +27,20 @@
                 <tbody class="divide-y divide-gray-50">
                     @forelse($clients as $client)
                         <tr class="hover:bg-gray-50/50 transition">
-                            <td class="px-6 py-4 font-black text-gray-900 tracking-tight italic">{{ $client->name }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 p-1">
+                                        @if($client->logo)
+                                            <img src="{{ \Illuminate\Support\Facades\Storage::url($client->logo) }}" alt="{{ $client->name }}" class="h-full w-full object-contain">
+                                        @else
+                                            <div class="h-full w-full flex items-center justify-center bg-primary/5">
+                                                <span class="text-primary font-black text-xs">{{ substr($client->name, 0, 1) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <span class="font-black text-gray-900 tracking-tight italic">{{ $client->name }}</span>
+                                </div>
+                            </td>
                             <td class="px-6 py-4 font-medium text-gray-600">{{ $client->email }}</td>
                             <td class="px-6 py-4 font-bold text-gray-400 text-xs">{{ $client->phone }}</td>
                             <td class="px-6 py-4 text-right">

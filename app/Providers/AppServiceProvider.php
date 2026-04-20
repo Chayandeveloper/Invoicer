@@ -19,9 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Event::listen(
-            \SocialiteProviders\Manager\SocialiteWasCalled::class,
-            \SocialiteProviders\Clerk\ClerkExtendSocialite::class.'@handle'
-        );
+        $socialite = $this->app->make('Laravel\Socialite\Contracts\Factory');
+        $socialite->extend('clerk', function ($app) use ($socialite) {
+            $config = $app['config']['services.clerk'];
+            return $socialite->buildProvider(\App\Socialite\ClerkProvider::class, $config);
+        });
     }
 }

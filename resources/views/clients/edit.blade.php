@@ -60,9 +60,9 @@
                             Logo (Optional)</label>
 
                         @if($client->logo)
-                            <div class="mb-4 flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-fit">
-                                <img src="{{ asset('storage/' . $client->logo) }}"
-                                    class="h-16 w-16 object-contain rounded-lg border bg-white p-1">
+                            <div id="current-logo-display" class="mb-4 flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-fit">
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($client->logo) }}"
+                                    class="h-16 w-16 object-contain rounded-lg border bg-white p-1" alt="Current Logo">
                                 <div>
                                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current Branding
                                     </p>
@@ -72,6 +72,14 @@
                             </div>
                         @endif
 
+                        <div id="new-logo-preview-container" class="hidden mb-4 flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-fit">
+                            <img id="new-logo-preview" src="#" class="h-16 w-16 object-contain rounded-lg border bg-white p-1">
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-primary">New Logo Preview</p>
+                                <p class="text-[10px] text-gray-500 font-medium">This will replace your current logo</p>
+                            </div>
+                        </div>
+
                         <div
                             class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-100 border-dashed rounded-2xl bg-gray-50/50">
                             <div class="space-y-1 text-center">
@@ -80,7 +88,7 @@
                                     <label for="logo-upload"
                                         class="relative cursor-pointer bg-white rounded-md font-bold text-primary hover:text-primary-dark focus-within:outline-none px-2">
                                         <span>Upload new logo</span>
-                                        <input id="logo-upload" name="logo" type="file" class="sr-only" accept="image/*">
+                                        <input id="logo-upload" name="logo" type="file" class="sr-only" accept="image/*" onchange="previewLogo(this)">
                                     </label>
                                     <p class="pl-1">or drag and drop</p>
                                 </div>
@@ -90,6 +98,26 @@
                         </div>
                     </div>
                 </div>
+
+                <script>
+                    function previewLogo(input) {
+                        const container = document.getElementById('new-logo-preview-container');
+                        const preview = document.getElementById('new-logo-preview');
+                        const currentLogo = document.getElementById('current-logo-display');
+                        
+                        if (input.files && input.files[0]) {
+                            const reader = new FileReader();
+                            
+                            reader.onload = function(e) {
+                                preview.src = e.target.result;
+                                container.classList.remove('hidden');
+                                if (currentLogo) currentLogo.style.opacity = '0.5';
+                            }
+                            
+                            reader.readAsDataURL(input.files[0]);
+                        }
+                    }
+                </script>
 
                 <div class="flex justify-center sm:justify-end gap-4 pt-8 border-t border-gray-100">
                     <a href="{{ route('clients.index') }}"

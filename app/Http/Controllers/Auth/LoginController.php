@@ -16,6 +16,12 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
+    public function showRegisterForm()
+    {
+        return view('auth.register');
+    }
+
+    /*
     // Google Login
     public function redirectToGoogle()
     {
@@ -48,11 +54,20 @@ class LoginController extends Controller
             return redirect()->route('login')->with('error', 'Google login failed.');
         }
     }
+    */
 
     // Clerk Login
     public function redirectToClerk()
     {
         return Socialite::driver('clerk')->redirect();
+    }
+
+    public function redirectToClerkSignup()
+    {
+        // Try to force signup mode if supported, otherwise standard redirect
+        return Socialite::driver('clerk')
+            ->with(['mode' => 'signup', 'action' => 'sign_up'])
+            ->redirect();
     }
 
     public function handleClerkCallback()
@@ -68,7 +83,7 @@ class LoginController extends Controller
                 $user->update(['clerk_id' => $clerkUser->id]);
             } else {
                 $user = User::create([
-                    'name' => $clerkUser->name,
+                    'name' => $clerkUser->name ?? explode('@', $clerkUser->email)[0],
                     'email' => $clerkUser->email,
                     'clerk_id' => $clerkUser->id,
                 ]);
@@ -78,11 +93,50 @@ class LoginController extends Controller
             return redirect()->route('dashboard');
 
         } catch (\Exception $e) {
-            \Log::error('Clerk login failed: ' . $e->getMessage());
-            return redirect()->route('login')->with('error', 'Clerk login failed.');
+            \Log::error('Clerk login failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            return redirect()->route('login')->with('error', 'Clerk login failed: ' . $e->getMessage());
         }
     }
 
+    public function handshake(Request $request)
+    {
+        try {
+            $clerkId = $request->id;
+            $email = $request->email;
+            $name = $request->name;
+
+            if (!$clerkId || !$email) {
+                return response()->json(['success' => false, 'message' => 'Invalid ID or Email'], 400);
+            }
+
+            $user = User::where('clerk_id', $clerkId)
+                ->orWhere('email', $email)
+                ->first();
+
+            if ($user) {
+                $user->update(['clerk_id' => $clerkId]);
+            } else {
+                $user = User::create([
+                    'name' => $name ?? explode('@', $email)[0],
+                    'email' => $email,
+                    'clerk_id' => $clerkId,
+                ]);
+            }
+
+            Auth::login($user);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Handshake failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /*
     // Mobile OTP Login
     public function sendOtp(Request $request)
     {
@@ -126,6 +180,7 @@ class LoginController extends Controller
 
         return back()->withErrors(['otp' => 'Invalid or expired OTP.']);
     }
+    */
 
     public function logout()
     {

@@ -12,6 +12,7 @@ use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\ClientController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Google Auth
@@ -20,6 +21,9 @@ Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallba
 
 // Clerk Auth
 Route::get('/auth/clerk', [LoginController::class, 'redirectToClerk'])->name('login.clerk');
+Route::get('/auth/clerk/register', [LoginController::class, 'redirectToClerkSignup'])->name('register.clerk');
+Route::get('/auth/clerk/sync', function() { return view('auth.sync'); })->name('auth.clerk.sync');
+Route::post('/auth/clerk/handshake', [LoginController::class, 'handshake'])->name('auth.clerk.handshake');
 Route::get('/auth/clerk/callback', [LoginController::class, 'handleClerkCallback']);
 
 // Mobile OTP Auth
