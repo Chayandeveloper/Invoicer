@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        $tables = ['businesses', 'clients', 'invoices', 'quotations', 'expenses', 'payments'];
+
+        foreach ($tables as $table) {
+            if (!Schema::hasColumn($table, 'user_id')) {
+                Schema::table($table, function (Blueprint $table) {
+                    $table->foreignId('user_id')->nullable()->after('id')->constrained()->onDelete('cascade');
+                });
+            }
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        $tables = ['businesses', 'clients', 'invoices', 'quotations', 'expenses', 'payments'];
+
+        foreach ($tables as $table) {
+            if (Schema::hasColumn($table, 'user_id')) {
+                Schema::table($table, function (Blueprint $table) {
+                    $table->dropConstrainedForeignId('user_id');
+                });
+            }
+        }
+    }
+};

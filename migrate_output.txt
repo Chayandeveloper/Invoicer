@@ -1,0 +1,26 @@
+﻿
+   INFO  Running migrations.  
+
+  2026_02_13_185538_add_user_id_to_business_tables  10.70ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42S21]: Column already exists: 1060 Duplicate column name 'user_id' (Connection: mysql, SQL: alter table `businesses` add `user_id` bigint unsigned null after `id`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:826
+    822Γûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    823Γûò                 );
+    824Γûò             }
+    825Γûò 
+  Γ₧£ 826Γûò             throw new QueryException(
+    827Γûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    828Γûò             );
+    829Γûò         }
+    830Γûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOException::("SQLSTATE[42S21]: Column already exists: 1060 Duplicate column name 'user_id'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOStatement::execute()
+

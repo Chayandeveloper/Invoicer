@@ -1,0 +1,28 @@
+﻿
+  Migration name  Batch / Status  
+  0001_01_01_000000_create_users_table  [1] Ran  
+  0001_01_01_000001_create_cache_table  [1] Ran  
+  0001_01_01_000002_create_jobs_table  [1] Ran  
+  2025_02_13_235500_add_fields_to_expenses_table  [9] Ran  
+  2025_12_29_131350_create_invoices_table  [1] Ran  
+  2025_12_29_131354_create_invoice_items_table  [1] Ran  
+  2025_12_29_133622_create_businesses_table  [1] Ran  
+  2025_12_29_133625_create_clients_table  [1] Ran  
+  2025_12_29_133630_add_bank_details_to_invoices_table  [1] Ran  
+  2025_12_29_134925_add_logo_to_businesses_and_invoices_tables  [1] Ran  
+  2025_12_29_135936_add_status_to_invoices_table  [1] Ran  
+  2025_12_30_000000_add_tax_rate_and_qr_to_invoices  [1] Ran  
+  2025_12_30_000001_add_tax_rate_to_invoice_items  [1] Ran  
+  2026_02_13_161141_create_permission_tables  [2] Ran  
+  2026_02_13_161149_create_roles_and_permissions_tables  [2] Ran  
+  2026_02_13_164934_add_enhanced_fields_to_invoices_table  [3] Ran  
+  2026_02_13_164939_create_payments_table  [3] Ran  
+  2026_02_13_172953_create_quotations_table  [5] Ran  
+  2026_02_13_172954_create_quotation_items_table  [5] Ran  
+  2026_02_13_172955_create_expenses_table  [5] Ran  
+  2026_02_13_180417_add_client_logo_to_payments_table  [7] Ran  
+  2026_02_13_181407_add_phone_fields_to_multiple_tables  [8] Ran  
+  2026_02_13_185535_add_auth_fields_to_users_table  [10] Ran  
+  2026_02_13_185538_add_user_id_to_business_tables  Pending  
+  2026_02_13_233000_add_logo_to_clients_and_prints  [6] Ran  
+
