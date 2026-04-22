@@ -104,7 +104,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="h-[350px]">
+                <div class="h-[350px] chart-container radar-reveal" id="perf-container">
                     @if($revenueValues->sum() == 0 && $expenseValues->sum() == 0)
                         <div class="h-full flex flex-col items-center justify-center text-gray-400">
                             <i class="fas fa-chart-bar text-4xl mb-4 text-gray-200"></i>
@@ -113,6 +113,10 @@
                         </div>
                     @else
                         <canvas id="performanceChart"></canvas>
+                        <div class="radar-loader-overlay">
+                            <div class="radar-spinner"></div>
+                            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-4 animate-pulse">Scanning Intelligence...</p>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -121,7 +125,7 @@
             <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/50">
                 <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.3em] mb-8 text-center">Expense Composition
                 </h3>
-                <div class="h-[250px] relative mb-10">
+                <div class="h-[250px] relative mb-10 chart-container" id="breakdown-container">
                     @if($expenseBreakdown->isEmpty() || $expenseBreakdown->sum('total') == 0)
                         <div class="h-full flex flex-col items-center justify-center text-gray-400">
                             <i class="fas fa-chart-pie text-4xl mb-4 text-gray-200"></i>
@@ -132,7 +136,7 @@
                     @endif
                 </div>
                 <div class="space-y-4">
-                    @foreach($expenseBreakdown->take(3) as $expense)
+                    @foreach($expenseBreakdown->take(5) as $expense)
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-2 rounded-full"
@@ -231,122 +235,117 @@
         </div>
     </div>
 
+    @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        Chart.defaults.font.family = "'Outfit', sans-serif";
-        Chart.defaults.color = '#94a3b8';
-
-        // Performance Chart
-        const perfCtx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(perfCtx, {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartLabels) !!},
-                datasets: [
-                    {
-                        label: 'Revenue',
-                        data: {!! json_encode($revenueValues) !!},
-                        borderColor: '#0C8D5D',
-                        backgroundColor: 'rgba(12, 141, 93, 0.05)',
-                        borderWidth: 4,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 6,
-                        pointHoverBackgroundColor: '#0C8D5D',
-                        pointHoverBorderColor: '#fff',
-                        pointHoverBorderWidth: 3
-                    },
-                    {
-                        label: 'Expenses',
-                        data: {!! json_encode($expenseValues) !!},
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                        borderWidth: 4,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 6,
-                        pointHoverBackgroundColor: '#ef4444',
-                        pointHoverBorderColor: '#fff',
-                        pointHoverBorderWidth: 3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        padding: 12,
-                        backgroundColor: '#0f172a',
-                        titleFont: { weight: 'bold', size: 10 },
-                        bodyFont: { weight: 'bold', size: 11 },
-                        bodySpacing: 8,
-                        usePointStyle: true
-                    }
-                },
-                scales: {
-                    y: {
-                        grid: { color: 'rgba(0, 0, 0, 0.03)', drawBorder: false },
-                        ticks: { font: { weight: 'bold', size: 9 }, callback: v => 'Rs. ' + v.toLocaleString() }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { weight: 'bold', size: 9 } }
+        window.addEventListener('load', () => {
+            const perfChartEl = document.getElementById('performanceChart');
+            const breakdownChartEl = document.getElementById('expenseBreakdownChart');
+            const perfContainer = document.getElementById('perf-container');
+            const bdownContainer = document.getElementById('breakdown-container');
+            
+            // Wait for smooth page entry
+            setTimeout(() => {
+                
+                if (perfChartEl) {
+                    new Chart(perfChartEl.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: {!! json_encode($chartLabels) !!},
+                            datasets: [
+                                {
+                                    label: 'Revenue',
+                                    data: {!! json_encode($revenueValues) !!},
+                                    borderColor: '#0C8D5D',
+                                    backgroundColor: 'rgba(12, 141, 93, 0.08)',
+                                    borderWidth: 4,
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointRadius: 2
+                                },
+                                {
+                                    label: 'Expenses',
+                                    data: {!! json_encode($expenseValues) !!},
+                                    borderColor: '#ef4444',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                                    borderWidth: 4,
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointRadius: 2
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 2000,
+                                easing: 'easeOutQuart',
+                                delay: (context) => context.dataIndex * 150 // Stagger the line points
+                            },
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true, grid: { display: false } } }
+                        }
+                    });
+                    if (perfContainer) {
+                        // Small delay to show the "Scanning" state
+                        setTimeout(() => {
+                            perfContainer.classList.add('loaded');
+                        }, 1200);
                     }
                 }
-            }
-        });
 
-        // Expense Breakdown Doughnut
-        const breakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
-        const chartColors = ['#0C8D5D', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+                if (breakdownChartEl) {
+                    const chartColors = ['#0C8D5D', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+                    chartColors.forEach((color, i) => {
+                        document.documentElement.style.setProperty(`--chart-color-${i}`, color);
+                    });
 
-        // Set colors for the legend elements in the HTML
-        chartColors.forEach((color, i) => {
-            document.documentElement.style.setProperty(`--chart-color-${i}`, color);
-        });
-
-        new Chart(breakdownCtx, {
-            type: 'doughnut',
-            data: {
-                labels: {!! json_encode($expenseBreakdown->pluck('category')) !!},
-                datasets: [{
-                    data: {!! json_encode($expenseBreakdown->pluck('total')) !!},
-                    backgroundColor: chartColors,
-                    borderWidth: 0,
-                    cutout: '80%',
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        padding: 12,
-                        backgroundColor: '#0f172a',
-                        bodyFont: { weight: 'bold', size: 11 },
-                        usePointStyle: true
-                    }
+                    new Chart(breakdownChartEl.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: {!! json_encode($expenseBreakdown->pluck('category')) !!},
+                            datasets: [{
+                                data: {!! json_encode($expenseBreakdown->pluck('total')) !!},
+                                backgroundColor: chartColors,
+                                borderWidth: 0,
+                                cutout: '75%'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                animateRotate: true,
+                                animateScale: true,
+                                duration: 1500,
+                                easing: 'easeOutBounce',
+                                delay: (context) => context.dataIndex * 250 // Stagger each segment color
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                    if (bdownContainer) bdownContainer.classList.add('loaded');
                 }
-            }
+                
+                console.log("Visual Transitions Active");
+            }, 600);
         });
-
     </script>
+    @endpush
 
     <style>
+        @property --reveal-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
         @keyframes fade-in {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -355,6 +354,118 @@
 
         .animate-fade-in {
             animation: fade-in 0.6s ease-out forwards;
+        }
+
+        .chart-container {
+            position: relative;
+            opacity: 0;
+            filter: blur(10px);
+            transform: scale(0.92);
+            transition: 
+                opacity 1.2s ease-out,
+                filter 1.5s ease-out,
+                transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            /* Radial Sweep Mask */
+            -webkit-mask-image: conic-gradient(black var(--reveal-angle), transparent 0);
+            mask-image: conic-gradient(black var(--reveal-angle), transparent 0);
+            -webkit-mask-size: 100% 100%;
+        }
+
+        /* The glowing edge of the sweep reveal */
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(12, 141, 93, 0.05) calc(var(--reveal-angle) - 15deg),
+                rgba(12, 141, 93, 0.4) var(--reveal-angle),
+                transparent var(--reveal-angle)
+            );
+            filter: blur(8px);
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .chart-container.loaded {
+            opacity: 1;
+            filter: blur(0);
+            transform: scale(1);
+            animation: reveal-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .chart-container.loaded::before {
+            opacity: 1;
+        }
+
+        /* Radar Reveal Specialization */
+        .radar-reveal.loaded::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(rgba(12, 141, 93, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(12, 141, 93, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            animation: grid-fade 2s ease-out 1s forwards;
+        }
+
+        .radar-reveal::before {
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(12, 141, 93, 0.1) calc(var(--reveal-angle) - 30deg),
+                rgba(12, 141, 93, 0.6) var(--reveal-angle),
+                transparent var(--reveal-angle)
+            );
+            filter: blur(5px);
+        }
+
+        .radar-loader-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            z-index: 30;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .radar-reveal.loaded .radar-loader-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.1);
+        }
+
+        .radar-spinner {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(12, 141, 93, 0.1);
+            border-top-color: #0C8D5D;
+            border-radius: 50%;
+            animation: radar-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes radar-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes grid-fade {
+            to { opacity: 1; }
+        }
+
+        @keyframes reveal-sweep {
+            from { --reveal-angle: 0deg; }
+            to { --reveal-angle: 360deg; }
         }
     </style>
 @endsection

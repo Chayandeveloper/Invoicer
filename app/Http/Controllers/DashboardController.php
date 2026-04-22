@@ -71,6 +71,7 @@ class DashboardController extends Controller
         // Expense Breakdown
         $expenseBreakdown = auth()->user()->expenses()->select('category', DB::raw('sum(amount) as total'))
             ->groupBy('category')
+            ->orderByDesc('total')
             ->get();
 
         $monthlyExpenses = auth()->user()->expenses()->where('expense_date', '>=', Carbon::now()->subMonths(6))
@@ -83,9 +84,31 @@ class DashboardController extends Controller
             ->orderBy('max_date', 'asc')
             ->get();
 
-        $chartLabels = $monthlyRevenue->pluck('month');
-        $revenueValues = $monthlyRevenue->pluck('total');
-        $expenseValues = $monthlyExpenses->pluck('total');
+        $chartLabels = [];
+        $revenueValues = [];
+        $expenseValues = [];
+
+        // Determine the end month for the chart (now or the latest data point)
+        $latestDataDate = max(
+            Carbon::now(),
+            $monthlyRevenue->max('max_date') ? Carbon::parse($monthlyRevenue->max('max_date')) : Carbon::now(),
+            $monthlyExpenses->max('max_date') ? Carbon::parse($monthlyExpenses->max('max_date')) : Carbon::now()
+        );
+
+        for ($i = 5; $i >= 0; $i--) {
+            $month = Carbon::parse($latestDataDate)->subMonths($i)->format('M Y');
+            $chartLabels[] = $month;
+
+            $rev = $monthlyRevenue->where('month', $month)->first();
+            $revenueValues[] = $rev ? (float)$rev->total : 0;
+
+            $exp = $monthlyExpenses->where('month', $month)->first();
+            $expenseValues[] = $exp ? (float)$exp->total : 0;
+        }
+
+        $chartLabels = collect($chartLabels);
+        $revenueValues = collect($revenueValues);
+        $expenseValues = collect($expenseValues);
 
         // Status Breakdown
         $statusCounts = auth()->user()->invoices()->select('status', DB::raw('count(*) as count'))

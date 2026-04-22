@@ -195,11 +195,11 @@
                     Create New Account
                 </a>
                 
-                <a href="{{ route('login.clerk') }}" onclick="showLoader()"
+                <button type="button" onclick="loginWithClerk()"
                     class="btn-login-google flex items-center justify-center gap-3 w-full p-4 rounded-2xl font-black text-[13px] uppercase tracking-widest transition-all shadow-sm">
                     <i class="fas fa-user-shield text-primary text-lg"></i>
                     Sign in with Google Account
-                </a>
+                </button>
             </div>
 
             <div class="flex items-center gap-4 py-2">
@@ -272,13 +272,13 @@
     </div>
 
     <script>
+        const loader = document.getElementById('loading-overlay');
         const sendOtpBtn = document.getElementById('send-otp-btn');
         const phoneSection = document.getElementById('otp-phone-section');
         const verifySection = document.getElementById('otp-verify-section');
         const mobileInput = document.getElementById('mobile_number');
         const verifyMobileInput = document.getElementById('verify_mobile');
         const otpMessageText = document.getElementById('otp-message-text');
-        const loader = document.getElementById('loading-overlay');
 
         function showLoader() {
             loader.style.display = 'flex';
@@ -286,6 +286,76 @@
 
         function hideLoader() {
             loader.style.display = 'none';
+        }
+
+        // Initialize Clerk
+        window.addEventListener('load', async () => {
+            try {
+                while (!window.Clerk) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                await Clerk.load();
+
+                // If already signed into Clerk, sync with Laravel automatically
+                // BUT skip if we just logged out manually to prevent immediate re-login
+                const isManualLogout = {{ session('manual_logout') ? 'true' : 'false' }};
+                if (Clerk.user && !isManualLogout) {
+                    syncWithLaravel(Clerk.user);
+                }
+            } catch (error) {
+                console.error('Clerk failed to load:', error);
+            }
+        });
+
+        async function loginWithClerk() {
+            showLoader();
+
+            // If already signed into Clerk but not synced with Laravel (e.g. after manual logout), 
+            // just perform the sync instead of starting a new sign-in flow.
+            if (Clerk.user) {
+                await syncWithLaravel(Clerk.user);
+                return;
+            }
+
+            try {
+                // In Vanilla JS SDK, authenticateWithRedirect is on Clerk.client.signIn
+                await Clerk.client.signIn.authenticateWithRedirect({
+                    strategy: 'oauth_google',
+                    redirectUrl: "{{ route('auth.clerk.sync') }}",
+                    redirectUrlComplete: "{{ route('auth.clerk.sync') }}"
+                });
+            } catch (error) {
+                console.error('Clerk auth failed:', error);
+                hideLoader();
+                alert('Connection to secure login failed. please try again.');
+            }
+        }
+
+        async function syncWithLaravel(clerkUser) {
+            showLoader();
+            try {
+                const response = await fetch("{{ route('auth.clerk.handshake') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        id: clerkUser.id,
+                        email: clerkUser.primaryEmailAddress.emailAddress,
+                        name: clerkUser.fullName
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = "{{ route('dashboard') }}";
+                }
+            } catch (error) {
+                console.error('Sync failed:', error);
+                hideLoader();
+            }
         }
 
         sendOtpBtn.addEventListener('click', async () => {
@@ -315,8 +385,6 @@
                     verifySection.classList.remove('hidden');
                     verifyMobileInput.value = mobile;
                     otpMessageText.innerText = data.message;
-
-                    // Auto focus OTP input
                     setTimeout(() => document.getElementById('otp-input').focus(), 300);
                 } else {
                     alert('Error sending OTP. Please try again.');
@@ -336,7 +404,6 @@
             verifySection.classList.add('hidden');
         }
 
-        // Handle numeric only input for OTP and Mobile
         [mobileInput, document.getElementById('otp-input')].forEach(el => {
             if (!el) return;
             el.addEventListener('input', function () {

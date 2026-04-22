@@ -61,7 +61,7 @@
                 <div class="w-full sm:w-auto flex-1 min-w-[140px]">
                     <label
                         class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 tracking-widest">Business</label>
-                    <select name="business_id"
+                    <select name="business_id" onchange="this.form.submit()"
                         class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-2.5">
                         <option value="">All Businesses</option>
                         @foreach($businesses as $business)
@@ -74,7 +74,7 @@
                 <div class="w-full sm:w-auto flex-1 min-w-[140px]">
                     <label
                         class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 tracking-widest">Category</label>
-                    <select name="category"
+                    <select name="category" onchange="this.form.submit()"
                         class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-2.5">
                         <option value="">All Categories</option>
                         @foreach($categories as $cat)
@@ -85,7 +85,7 @@
                 <div class="w-full sm:w-auto min-w-[100px]">
                     <label
                         class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 tracking-widest">Status</label>
-                    <select name="status"
+                    <select name="status" onchange="this.form.submit()"
                         class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-2.5">
                         <option value="">All</option>
                         <option value="Paid" {{ request('status') == 'Paid' ? 'selected' : '' }}>Paid</option>
@@ -95,12 +95,12 @@
                 <div class="w-full sm:w-auto">
                     <label
                         class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 tracking-widest">From</label>
-                    <input type="date" name="start_date" value="{{ request('start_date') }}"
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" onchange="this.form.submit()"
                         class="w-full sm:w-32 border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-2.5">
                 </div>
                 <div class="w-full sm:w-auto">
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 tracking-widest">To</label>
-                    <input type="date" name="end_date" value="{{ request('end_date') }}"
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" onchange="this.form.submit()"
                         class="w-full sm:w-32 border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-2.5">
                 </div>
                 <button type="submit"
