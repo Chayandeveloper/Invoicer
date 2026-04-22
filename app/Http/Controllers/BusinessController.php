@@ -73,4 +73,17 @@ class BusinessController extends Controller
 
         return redirect()->route('businesses.index')->with('success', 'Business updated successfully.');
     }
+
+    public function destroy($id)
+    {
+        $business = auth()->user()->businesses()->findOrFail($id);
+        
+        if ($business->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($business->logo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($business->logo);
+        }
+        
+        $business->delete();
+
+        return redirect()->route('businesses.index')->with('success', 'Business deleted successfully');
+    }
 }

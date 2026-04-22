@@ -30,7 +30,7 @@
                     <div class="mt-2 flex justify-end">
                         <span
                             class="inline-block px-3 py-1 rounded border-2 transform -rotate-12 font-bold text-xs shadow-sm uppercase tracking-wider
-                                {{ $invoice->status === 'Paid' ? 'bg-green-100 text-green-700 border-green-700' : 'bg-red-100 text-red-700 border-red-700' }}">
+                                {{ $invoice->status === 'Paid' ? 'bg-green-100 text-green-700 border-green-700' : ($invoice->status === 'Draft' ? 'bg-gray-100 text-gray-600 border-gray-600' : 'bg-red-100 text-red-700 border-red-700') }}">
                             {{ strtoupper($invoice->status) }}
                         </span>
                     </div>
@@ -266,7 +266,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="print:hidden border-t border-gray-200 mt-6 pt-6 flex justify-end gap-4" data-html2canvas-ignore="true">
+        <div class="print:hidden border-t border-gray-200 mt-6 pt-6 flex justify-end gap-4 relative z-20" data-html2canvas-ignore="true">
             <a href="{{ route('invoices.index') }}"
                 class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition flex items-center gap-2 text-sm">
                 <i class="fas fa-arrow-left"></i> Back
@@ -303,7 +303,7 @@
             </form>
             <a href="{{ route('invoices.download', $invoice->id) }}"
                 class="bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-dark transition flex items-center gap-2 text-sm shadow-sm">
-                <i class="fas fa-download"></i> Download PDF
+                <i class="fas fa-file-pdf"></i> Download PDF
             </a>
             <button onclick="window.print()"
                 class="bg-gray-900 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-gray-800 transition flex items-center gap-2 text-sm shadow-sm">

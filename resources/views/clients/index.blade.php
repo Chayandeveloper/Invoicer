@@ -46,11 +46,20 @@
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('clients.edit', $client->id) }}"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white transition rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-primary/5"
-                                        title="View Details">
-                                        <i class="fas fa-eye text-[11px]"></i>
-                                        <span>View</span>
+                                        class="p-2 text-gray-400 hover:text-amber-600 transition bg-gray-50 rounded-xl"
+                                        title="Edit">
+                                        <i class="fas fa-edit"></i>
                                     </a>
+                                    <form action="{{ route('clients.destroy', $client->id) }}" method="POST"
+                                        class="inline" onsubmit="return confirm('Are you sure you want to delete this client? This will not delete invoices linked to them.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="p-2 text-gray-400 hover:text-red-600 transition bg-gray-50 rounded-xl"
+                                            title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

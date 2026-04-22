@@ -83,6 +83,16 @@
                                                     title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+                                                <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST"
+                                                    class="inline" onsubmit="return confirm('Are you sure you want to delete this invoice?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="p-2.5 text-gray-400 hover:text-red-600 transition bg-gray-50 rounded-xl"
+                                                        title="Delete">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

@@ -4,12 +4,14 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "start": "concurrently \"php artisan serve --port=8001\" \"npm run dev\""
     },
     "devDependencies": {
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@tailwindcss/vite": "^4.0.0",
+        "@vitejs/plugin-vue": "^6.0.6",
         "autoprefixer": "^10.4.24",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
@@ -20,6 +22,7 @@
     },
     "dependencies": {
         "@clerk/vue": "^2.0.15",
+        "@inertiajs/vue3": "^3.0.3",
         "apexcharts": "^5.3.6",
         "vue3-apexcharts": "^1.10.0"
     }

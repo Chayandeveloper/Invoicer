@@ -28,14 +28,7 @@ class InvoiceController extends Controller
 
         return back()->with('success', 'Invoice has been sent to ' . $email);
     }
-    public function download($id)
-    {
-        $invoice = auth()->user()->invoices()->with('items')->findOrFail($id);
 
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
-
-        return $pdf->download('invoice-' . $invoice->invoice_number . '.pdf');
-    }
     public function index()
     {
         $invoices = auth()->user()->invoices()->latest()->get();
@@ -128,6 +121,7 @@ class InvoiceController extends Controller
             'tax' => $totalTax, // Storing total tax combined
             'tax_rate' => $globalTaxRate, // Storing global rate for reference
             'total' => $total,
+            'status' => $request->input('action') === 'draft' ? 'Draft' : 'Pending',
         ]);
 
         foreach ($request->items as $item) {
@@ -148,6 +142,13 @@ class InvoiceController extends Controller
     {
         $invoice = auth()->user()->invoices()->with('items')->findOrFail($id);
         return view('invoices.show', compact('invoice'));
+    }
+
+    public function download($id)
+    {
+        $invoice = auth()->user()->invoices()->with('items')->findOrFail($id);
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+        return $pdf->download('Invoice-' . $invoice->invoice_number . '.pdf');
     }
 
     public function edit($id)
@@ -219,6 +220,13 @@ class InvoiceController extends Controller
             $data['payment_qr_image'] = $request->file('payment_qr_image')->store('qr_codes', 'public');
         }
 
+        $status = $invoice->status;
+        if ($request->input('action') === 'draft') {
+            $status = 'Draft';
+        } elseif ($invoice->status === 'Draft' && $request->input('action') === 'generate') {
+            $status = 'Pending';
+        }
+
         $invoice->update([
             'sender_name' => $data['sender_name'],
             'sender_address' => $data['sender_address'],
@@ -240,6 +248,7 @@ class InvoiceController extends Controller
             'tax' => $totalTax,
             'tax_rate' => $globalTaxRate,
             'total' => $total,
+            'status' => $status,
         ]);
 
         // Replace items
@@ -263,5 +272,17 @@ class InvoiceController extends Controller
         $invoice = auth()->user()->invoices()->findOrFail($id);
         $invoice->update(['status' => $request->status]);
         return back();
+    }
+
+    public function destroy($id)
+    {
+        $invoice = auth()->user()->invoices()->findOrFail($id);
+        
+        // Items are usually deleted by cascading or explicitly if needed
+        // Assuming Invoice model has a relationship that handles this or we do it manually
+        $invoice->items()->delete();
+        $invoice->delete();
+
+        return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully');
     }
 }

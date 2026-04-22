@@ -35,11 +35,14 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Link to Invoice</label>
-                            <select name="invoice_id" id="invoice_id" onchange="updateAmount()"
+                            <select name="invoice_id" id="invoice_id" onchange="updateFromInvoice()"
                                 class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4">
                                 <option value="">-- Manual Entry / No Invoice --</option>
                                 @foreach($invoices as $invoice)
-                                    <option value="{{ $invoice->id }}" data-amount="{{ $invoice->total }}" 
+                                    <option value="{{ $invoice->id }}" 
+                                        data-amount="{{ $invoice->total }}" 
+                                        data-client-name="{{ $invoice->client_name }}"
+                                        data-client-logo="{{ $invoice->logo }}"
                                         {{ (isset($selectedInvoice) && $selectedInvoice->id == $invoice->id) ? 'selected' : '' }}>
                                         {{ $invoice->invoice_number }} (Rs. {{ number_format($invoice->total, 2) }})
                                     </option>
@@ -115,23 +118,47 @@
     </div>
 
     <script>
-        function updateAmount() {
+        function updateFromInvoice() {
             const select = document.getElementById('invoice_id');
             const amountInput = document.getElementById('amount');
+            const clientNameInput = document.getElementById('client_name');
+            const clientLogoInput = document.getElementById('client_logo');
+            const clientSelect = document.getElementById('client_select');
+            
             const selectedOption = select.options[select.selectedIndex];
             
-            if (selectedOption.dataset.amount) {
-                amountInput.value = selectedOption.dataset.amount;
+            if (selectedOption.value) {
+                // Auto-fill from Invoice
+                if (selectedOption.dataset.amount) {
+                    amountInput.value = selectedOption.dataset.amount;
+                }
+                if (selectedOption.dataset.clientName) {
+                    clientNameInput.value = selectedOption.dataset.clientName;
+                }
+                if (selectedOption.dataset.clientLogo) {
+                    clientLogoInput.value = selectedOption.dataset.clientLogo;
+                }
+                // Optional: Clear client select if an invoice is picked to avoid confusion
+                clientSelect.value = "";
+            } else {
+                // Clear fields if Manual Entry is selected
+                amountInput.value = '';
+                clientNameInput.value = '';
+                clientLogoInput.value = '';
             }
         }
 
         function populateFromClient() {
             const select = document.getElementById('client_select');
+            const invoiceSelect = document.getElementById('invoice_id');
             const selectedOption = select.options[select.selectedIndex];
             
             if (selectedOption.value) {
                 document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
                 document.getElementById('client_logo').value = selectedOption.getAttribute('data-logo');
+                // Clear invoice selection if manual client is picked
+                invoiceSelect.value = "";
+                document.getElementById('amount').value = '';
             } else {
                 document.getElementById('client_name').value = '';
                 document.getElementById('client_logo').value = '';

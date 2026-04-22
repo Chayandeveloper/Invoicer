@@ -67,4 +67,17 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index');
     }
+
+    public function destroy($id)
+    {
+        $client = auth()->user()->clients()->findOrFail($id);
+        
+        if ($client->logo && Storage::disk('public')->exists($client->logo)) {
+            Storage::disk('public')->delete($client->logo);
+        }
+        
+        $client->delete();
+
+        return redirect()->route('clients.index')->with('success', 'Client deleted successfully');
+    }
 }

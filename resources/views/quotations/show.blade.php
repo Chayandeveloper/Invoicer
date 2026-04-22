@@ -29,7 +29,7 @@
                     @endif
                     <div class="mt-2 flex justify-end">
                          <span class="inline-block px-3 py-1 rounded border-2 transform -rotate-12 font-bold text-xs uppercase tracking-wider
-                                {{ $quotation->status === 'Accepted' || $quotation->status === 'Invoiced' ? 'bg-green-100 text-green-700 border-green-700' : 'bg-yellow-100 text-yellow-700 border-yellow-700' }}">
+                                {{ $quotation->status === 'Accepted' || $quotation->status === 'Invoiced' ? 'bg-green-100 text-green-700 border-green-700' : ($quotation->status === 'Draft' ? 'bg-gray-100 text-gray-600 border-gray-600' : 'bg-yellow-100 text-yellow-700 border-yellow-700') }}">
                             {{ strtoupper($quotation->status) }}
                         </span>
                     </div>
@@ -182,10 +182,10 @@
                 </form>
             @endif
 
-            <a href="{{ route('quotations.download', $quotation->id) }}"
+            <button onclick="downloadPDF()"
                 class="bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-dark transition flex items-center gap-2 text-sm shadow-sm">
                 <i class="fas fa-file-pdf"></i> Download PDF
-            </a>
+            </button>
             
             <button onclick="window.print()"
                 class="bg-gray-900 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-gray-800 transition flex items-center gap-2 text-sm shadow-sm">
@@ -195,6 +195,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -211,6 +212,18 @@
                 });
             @endif
         });
+
+        function downloadPDF() {
+            const element = document.getElementById('quotation');
+            const opt = {
+                margin: [5, 5],
+                filename: 'Quotation-{{ $quotation->quotation_number }}.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 4, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
     </script>
 
     <style>

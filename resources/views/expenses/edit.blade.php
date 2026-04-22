@@ -123,16 +123,19 @@
                                 </div>
                             @endif
 
-                            <div class="mt-1 flex justify-center px-4 pt-4 pb-4 border-2 border-gray-100 border-dashed rounded-2xl bg-gray-50/50">
-                                <div class="space-y-1 text-center">
-                                    <i class="fas fa-file-invoice-dollar text-gray-200 text-2xl mb-2"></i>
-                                    <div class="flex text-xs text-gray-500">
-                                        <label for="receipt-upload" class="relative cursor-pointer bg-white rounded-md font-bold text-red-600 hover:text-red-700 focus-within:outline-none px-2 shadow-sm border border-gray-50">
-                                            <span>Upload New</span>
-                                            <input id="receipt-upload" name="receipt" type="file" class="sr-only" accept="image/*,application/pdf">
+                            <div class="mt-1 flex justify-center px-4 pt-4 pb-4 border-2 border-gray-100 border-dashed rounded-2xl bg-gray-50/50 relative overflow-hidden" id="drop-zone">
+                                <!-- Preview Image -->
+                                <img id="receipt-preview" src="#" alt="Preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl" />
+
+                                <div class="space-y-1 text-center relative z-10" id="upload-content">
+                                    <i class="fas fa-file-invoice-dollar text-gray-200 text-2xl mb-2" id="upload-icon"></i>
+                                    <div class="flex flex-col items-center justify-center text-xs text-gray-500">
+                                        <label for="receipt-upload" class="relative cursor-pointer bg-white rounded-md font-bold text-red-600 hover:text-red-700 focus-within:outline-none px-3 py-1 shadow-sm border border-gray-50">
+                                            <span id="upload-text">Upload New</span>
+                                            <input id="receipt-upload" name="receipt" type="file" class="sr-only" accept="image/*,application/pdf" onchange="previewReceipt(this)">
                                         </label>
                                     </div>
-                                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Up to 2MB</p>
+                                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest mt-2" id="upload-info">Up to 2MB</p>
                                 </div>
                             </div>
                         </div>
@@ -166,4 +169,56 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function previewReceipt(input) {
+            const preview = document.getElementById('receipt-preview');
+            const uploadIcon = document.getElementById('upload-icon');
+            const uploadText = document.getElementById('upload-text');
+            const uploadInfo = document.getElementById('upload-info');
+            const uploadContent = document.getElementById('upload-content');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileType = file.type;
+
+                if (fileType.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                        
+                        uploadContent.classList.add('bg-black/50', 'p-4', 'rounded-xl', 'backdrop-blur-sm');
+                        uploadIcon.classList.add('text-white');
+                        uploadIcon.classList.remove('text-gray-200');
+                        uploadInfo.classList.add('text-white');
+                        uploadInfo.classList.remove('text-gray-400');
+                        uploadText.textContent = "Change Image";
+                    }
+                    
+                    reader.readAsDataURL(file);
+                } else if (fileType === 'application/pdf') {
+                    preview.classList.add('hidden');
+                    uploadContent.classList.remove('bg-black/50', 'p-4', 'rounded-xl', 'backdrop-blur-sm');
+                    uploadIcon.classList.remove('fa-file-invoice-dollar', 'text-gray-200', 'text-white');
+                    uploadIcon.classList.add('fa-file-pdf', 'text-red-500');
+                    uploadText.textContent = "Change PDF";
+                    uploadInfo.textContent = file.name;
+                    uploadInfo.classList.remove('text-white');
+                    uploadInfo.classList.add('text-gray-400');
+                }
+            } else {
+                preview.src = '#';
+                preview.classList.add('hidden');
+                uploadContent.classList.remove('bg-black/50', 'p-4', 'rounded-xl', 'backdrop-blur-sm');
+                uploadIcon.classList.remove('fa-file-pdf', 'text-red-500', 'text-white');
+                uploadIcon.classList.add('fa-file-invoice-dollar', 'text-gray-200');
+                uploadText.textContent = "Upload New";
+                uploadInfo.textContent = "Up to 2MB";
+                uploadInfo.classList.remove('text-white');
+                uploadInfo.classList.add('text-gray-400');
+            }
+        }
+    </script>
 @endsection

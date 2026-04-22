@@ -94,10 +94,11 @@
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Select
-                            Saved Client</label>
+                            Client Type</label>
                         <select id="client_select" onchange="populateClient()"
                             class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4">
-                            <option value="">-- Manual Entry --</option>
+                            <option value="">-- Select Client --</option>
+                            <option value="manual">-- Manual Entry --</option>
                             @foreach($clients as $client)
                                 <option value="{{ $client->id }}" data-name="{{ $client->name }}"
                                     data-address="{{ $client->address }}" data-phone="{{ $client->phone }}"
@@ -108,13 +109,13 @@
                         </select>
                     </div>
 
-                    <div class="space-y-4">
+                    <div class="space-y-4" id="client_details_fields" style="display: none;">
                         <input type="hidden" name="client_logo" id="client_logo">
                         <div>
                             <label
                                 class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client
                                 Name</label>
-                            <input type="text" name="client_name" id="client_name" required
+                            <input type="text" name="client_name" id="client_name"
                                 class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4">
                         </div>
                         <div>
@@ -274,8 +275,12 @@
 
             <div class="flex justify-center sm:justify-end gap-4 pt-10 border-t border-gray-100">
                 <a href="{{ route('quotations.index') }}"
-                    class="px-8 py-4 text-gray-400 font-bold hover:text-gray-600 transition text-sm">Cancel</a>
-                <button type="submit"
+                    class="px-8 py-4 text-gray-400 font-bold hover:text-gray-600 transition text-sm flex items-center">Cancel</a>
+                <button type="submit" name="action" value="draft"
+                    class="bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-black hover:bg-gray-200 transition shadow-sm uppercase tracking-widest text-xs">
+                    Save as Draft
+                </button>
+                <button type="submit" name="action" value="generate"
                     class="bg-indigo-600 text-white px-12 py-4 rounded-xl font-black hover:bg-indigo-700 transition shadow-xl shadow-indigo-200 uppercase tracking-widest text-xs">
                     Create Quotation
                 </button>
@@ -301,14 +306,27 @@
         function populateClient() {
             const select = document.getElementById('client_select');
             const selectedOption = select.options[select.selectedIndex];
+            const detailsFields = document.getElementById('client_details_fields');
+            const clientNameInput = document.getElementById('client_name');
 
-            if (selectedOption.value) {
-                document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
-                document.getElementById('client_address').value = selectedOption.getAttribute('data-address');
-                document.getElementById('client_phone').value = selectedOption.getAttribute('data-phone');
-                document.getElementById('client_logo').value = selectedOption.getAttribute('data-logo');
+            if (selectedOption.value === "") {
+                detailsFields.style.display = 'none';
+                clientNameInput.required = false;
             } else {
-                document.getElementById('client_logo').value = '';
+                detailsFields.style.display = 'block';
+                clientNameInput.required = true;
+
+                if (selectedOption.value === "manual") {
+                    document.getElementById('client_name').value = '';
+                    document.getElementById('client_address').value = '';
+                    document.getElementById('client_phone').value = '';
+                    document.getElementById('client_logo').value = '';
+                } else {
+                    document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
+                    document.getElementById('client_address').value = selectedOption.getAttribute('data-address');
+                    document.getElementById('client_phone').value = selectedOption.getAttribute('data-phone');
+                    document.getElementById('client_logo').value = selectedOption.getAttribute('data-logo');
+                }
             }
         }
 

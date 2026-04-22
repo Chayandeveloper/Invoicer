@@ -13,28 +13,42 @@
     </div>
 
     <!-- Stats Bar -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md">
-            <div class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total (Month)
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-red-50 text-red-600 rounded-xl group-hover:bg-red-600 group-hover:text-white transition-colors">
+                    <i class="fas fa-calendar-alt text-lg"></i>
+                </div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total (Month)</div>
             </div>
-            <div class="text-lg sm:text-2xl font-black text-gray-900 truncate">
-                ₹{{ number_format($expenses->where('expense_date', '>=', now()->startOfMonth())->sum('amount'), 2) }}</div>
+            <div class="text-2xl font-black text-gray-900 truncate tracking-tight">₹{{ number_format($expenses->where('expense_date', '>=', now()->startOfMonth())->sum('amount'), 2) }}</div>
         </div>
-        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md">
-            <div class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total (Year)
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <i class="fas fa-chart-line text-lg"></i>
+                </div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total (Year)</div>
             </div>
-            <div class="text-lg sm:text-2xl font-black text-gray-900 truncate">
-                ₹{{ number_format($expenses->where('expense_date', '>=', now()->startOfYear())->sum('amount'), 2) }}</div>
+            <div class="text-2xl font-black text-gray-900 truncate tracking-tight">₹{{ number_format($expenses->where('expense_date', '>=', now()->startOfYear())->sum('amount'), 2) }}</div>
         </div>
-        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md">
-            <div class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pending</div>
-            <div class="text-lg sm:text-2xl font-black text-amber-600 truncate">
-                ₹{{ number_format($expenses->where('status', 'Pending')->sum('amount'), 2) }}</div>
-        </div>
-        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md">
-            <div class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Top Category
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                    <i class="fas fa-clock text-lg"></i>
+                </div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Unpaid/Pending</div>
             </div>
-            <div class="text-lg sm:text-2xl font-black text-primary truncate">
+            <div class="text-2xl font-black text-amber-600 truncate tracking-tight">₹{{ number_format($expenses->where('status', 'Pending')->sum('amount'), 2) }}</div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition hover:shadow-md group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <i class="fas fa-tags text-lg"></i>
+                </div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Top Category</div>
+            </div>
+            <div class="text-2xl font-black text-indigo-600 truncate tracking-tight">
                 {{ $expenses->groupBy('category')->map->sum('amount')->sortDesc()->keys()->first() ?? 'N/A' }}
             </div>
         </div>
@@ -108,6 +122,7 @@
                     class="bg-gray-50 text-gray-900 font-black border-b border-gray-100 uppercase tracking-widest text-[10px]">
                     <tr>
                         <th class="px-6 py-5">Date / Ref</th>
+                        <th class="px-6 py-5">Receipt</th>
                         <th class="px-6 py-5">Business / Category</th>
                         <th class="px-6 py-5">Vendor / Description</th>
                         <th class="px-6 py-5">Amount</th>
@@ -119,12 +134,34 @@
                     @forelse($expenses as $expense)
                         <tr class="hover:bg-gray-50/50 transition">
                             <td data-label="Date/Ref" class="px-6 py-4">
-                                <div class="font-bold text-gray-900">
+                                <div class="font-bold text-gray-900 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($expense->expense_date)->format('M d, Y') }}
                                 </div>
                                 <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                    {{ $expense->reference_number ?? 'No Ref #' }}
+                                    #{{ $expense->reference_number ?? 'NO-REF' }}
                                 </div>
+                            </td>
+                            <td data-label="Receipt" class="px-6 py-4">
+                                @if($expense->receipt_path)
+                                    @if(Str::endsWith($expense->receipt_path, '.pdf'))
+                                        <a href="{{ asset('storage/' . $expense->receipt_path) }}" target="_blank" 
+                                           class="w-10 h-10 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                    @else
+                                        <div class="relative group cursor-pointer" onclick="openPreview('{{ asset('storage/' . $expense->receipt_path) }}')">
+                                            <img src="{{ asset('storage/' . $expense->receipt_path) }}" 
+                                                 class="w-10 h-10 object-cover rounded-lg border border-gray-100 shadow-sm group-hover:scale-110 transition-transform">
+                                            <div class="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <i class="fas fa-search-plus text-white text-[10px]"></i>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="w-10 h-10 rounded-lg bg-gray-50 border border-dotted border-gray-200 flex items-center justify-center text-gray-300">
+                                        <i class="fas fa-receipt text-[10px]"></i>
+                                    </div>
+                                @endif
                             </td>
                             <td data-label="Business/Category" class="px-6 py-4">
                                 <div class="text-xs font-black text-gray-800 tracking-tight">
@@ -205,6 +242,26 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
+    <div id="preview-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+        <button onclick="closePreview()" class="absolute top-6 right-6 text-white text-3xl hover:text-red-400 transition">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modal-img" src="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain">
     </div>
+
+    <script>
+        function openPreview(src) {
+            const modal = document.getElementById('preview-modal');
+            const img = document.getElementById('modal-img');
+            img.src = src;
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+
+        function closePreview() {
+            const modal = document.getElementById('preview-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+    </script>
 @endsection

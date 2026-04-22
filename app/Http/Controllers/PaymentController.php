@@ -43,19 +43,21 @@ class PaymentController extends Controller
 
         if (isset($data['invoice_id'])) {
             $invoice = auth()->user()->invoices()->findOrFail($data['invoice_id']);
-            $data['client_logo'] = $invoice->client_logo;
+            // Use the logo from the invoice if linked, otherwise use what was submitted
+            $data['client_logo'] = $invoice->logo; 
         }
 
-        $payment = auth()->user()->payments()->create(array_merge($data, ['user_id' => auth()->id()]));
+        // Explicitly set user_id to be safe
+        $data['user_id'] = auth()->id();
+        $payment = auth()->user()->payments()->create($data);
 
         if ($payment->invoice_id) {
             $invoice = auth()->user()->invoices()->find($payment->invoice_id);
-            if ($payment->amount >= $invoice->total) {
-                $invoice->update(['status' => 'Paid']);
-            }
+            // Mark as Paid if selecting an invoice
+            $invoice->update(['status' => 'Paid']);
         }
 
-        return redirect()->route('payments.index')->with('success', 'Payment recorded successfully');
+        return redirect()->route('payments.show', $payment->id)->with('success', 'Payment recorded and receipt generated');
     }
 
     public function show($id)
@@ -74,7 +76,16 @@ class PaymentController extends Controller
     public function destroy($id)
     {
         $payment = auth()->user()->payments()->findOrFail($id);
+        
+        // Reset invoice status if linked
+        if ($payment->invoice_id) {
+            $invoice = auth()->user()->invoices()->find($payment->invoice_id);
+            if ($invoice) {
+                $invoice->update(['status' => 'Pending']);
+            }
+        }
+
         $payment->delete();
-        return redirect()->route('payments.index')->with('success', 'Payment record deleted');
+        return redirect()->route('payments.index')->with('success', 'Payment record deleted and invoice status reset to pending');
     }
 }

@@ -63,10 +63,11 @@ class QuotationController extends Controller
         $globalTax = $subtotal * (($request->tax_rate ?? 0) / 100);
         $total = $subtotal + $totalItemTax + $globalTax;
 
-        $quotation = auth()->user()->quotations()->create(array_merge($request->except('items'), [
+        $quotation = auth()->user()->quotations()->create(array_merge($request->except(['items', 'action']), [
             'user_id' => auth()->id(),
             'subtotal' => $subtotal,
             'total' => $total,
+            'status' => $request->input('action') === 'draft' ? 'Draft' : 'Pending',
         ]));
 
         foreach ($request->items as $item) {
@@ -133,9 +134,17 @@ class QuotationController extends Controller
         $globalTax = $subtotal * (($request->tax_rate ?? 0) / 100);
         $total = $subtotal + $totalItemTax + $globalTax;
 
-        $quotation->update(array_merge($request->except('items'), [
+        $status = $quotation->status;
+        if ($request->input('action') === 'draft') {
+            $status = 'Draft';
+        } elseif ($quotation->status === 'Draft' && $request->input('action') === 'generate') {
+            $status = 'Pending';
+        }
+
+        $quotation->update(array_merge($request->except(['items', 'action']), [
             'subtotal' => $subtotal,
             'total' => $total,
+            'status' => $status,
         ]));
 
         $quotation->items()->delete();
@@ -204,5 +213,14 @@ class QuotationController extends Controller
         $request->validate(['status' => 'required|string']);
         $quotation->update(['status' => $request->status]);
         return back()->with('success', 'Status updated successfully');
+    }
+
+    public function destroy($id)
+    {
+        $quotation = auth()->user()->quotations()->findOrFail($id);
+        $quotation->items()->delete();
+        $quotation->delete();
+
+        return redirect()->route('quotations.index')->with('success', 'Quotation deleted successfully');
     }
 }
