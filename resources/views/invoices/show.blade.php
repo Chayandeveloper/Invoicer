@@ -127,6 +127,21 @@
                     <span class="font-bold text-gray-900">Total</span>
                     <span class="font-extrabold text-primary">Rs. {{ number_format($invoice->total, 2) }}</span>
                 </div>
+
+                @if($invoice->status !== 'Draft' && $invoice->paid_amount > 0)
+                <div class="mt-4 pt-4 border-t-2 border-dashed border-gray-100 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-gray-500 italic uppercase tracking-tighter text-[10px]">Total Paid to Date</span>
+                        <span class="font-bold text-green-600">Rs. {{ number_format($invoice->paid_amount, 2) }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="font-bold text-gray-900 uppercase tracking-tighter text-[10px]">Remaining Balance</span>
+                        <span class="font-black {{ $invoice->remaining_balance > 0 ? 'text-primary' : 'text-gray-400' }}">
+                            Rs. {{ number_format($invoice->remaining_balance, 2) }}
+                        </span>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 

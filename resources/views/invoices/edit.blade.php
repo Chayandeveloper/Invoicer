@@ -42,6 +42,7 @@
                                 </option>
                             @endforeach
                         </select>
+                        <input type="hidden" name="business_profile" id="business_profile" value="{{ $invoice->business_profile }}">
                         <input type="hidden" name="logo" id="logo" value="{{ $invoice->logo }}">
                     </div>
                 </div>
@@ -306,12 +307,15 @@
             const selectedOption = select.options[select.selectedIndex];
 
             if (selectedOption.value) {
+                document.getElementById('business_profile').value = selectedOption.value;
                 document.getElementById('sender_name').value = selectedOption.getAttribute('data-name');
                 document.getElementById('sender_address').value = selectedOption.getAttribute('data-address');
                 document.getElementById('sender_website').value = selectedOption.getAttribute('data-website');
                 document.getElementById('sender_phone').value = selectedOption.getAttribute('data-phone');
                 document.getElementById('bank_details').value = selectedOption.getAttribute('data-bank');
                 document.getElementById('logo').value = selectedOption.getAttribute('data-logo');
+            } else {
+                document.getElementById('business_profile').value = '';
             }
         }
 

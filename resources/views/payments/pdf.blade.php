@@ -1,263 +1,343 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>Payment Receipt #{{ $payment->receipt_number }}</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-
+        @page {
+            margin: 0;
+        }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #111827;
             margin: 0;
-            padding: 40px;
+            padding: 0;
             background: #fff;
+            line-height: 1.4;
         }
-
-        .header {
-            border-bottom: 4px solid #0C8D5D;
-            padding-bottom: 20px;
-            margin-bottom: 40px;
+        .header-bar {
+            background-color: #0C8D5D;
+            padding: 40px;
+            color: #ffffff;
+            position: relative;
         }
-
+        .header-table {
+            width: 100%;
+        }
+        .business-logo-container {
+            width: 70px;
+            height: 70px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 5px;
+            text-align: center;
+        }
+        .business-logo {
+            max-width: 60px;
+            max-height: 60px;
+        }
+        .receipt-label {
+            font-size: 10px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
         .receipt-title {
             font-size: 32px;
-            font-weight: 900;
-            color: #0C8D5D;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-        }
-
-        .receipt-meta {
-            text-align: right;
-            font-size: 12px;
-            color: #6B7280;
-            text-transform: uppercase;
             font-weight: bold;
-            letter-spacing: 1px;
+            margin: 0;
+            color: #ffffff;
         }
-
-        .receipt-number {
-            font-size: 20px;
-            color: #111827;
-            font-weight: 900;
-            margin-top: 5px;
+        .container {
+            padding: 40px;
+            position: relative;
         }
-
-        .info-grid {
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin-top: -150px;
+            margin-left: -225px;
+            width: 450px;
+            opacity: 0.2; 
+            z-index: -1000;
+            text-align: center;
+        }
+        .parties-table {
             width: 100%;
             margin-bottom: 40px;
         }
-
-        .info-box {
-            width: 50%;
+        .party-box {
+            width: 48%;
             vertical-align: top;
         }
-
-        .label {
-            font-size: 10px;
+        .section-label {
+            font-size: 9px;
             font-weight: bold;
             color: #9CA3AF;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            border-left: 3px solid #0C8D5D;
+            padding-left: 8px;
         }
-
-        .value {
+        .party-card {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .party-card-primary {
+            background-color: #0C8D5D;
+            padding: 15px;
+            border-radius: 10px;
+            color: #ffffff;
+        }
+        .party-name {
             font-size: 14px;
             font-weight: bold;
-            color: #111827;
+            margin-bottom: 5px;
         }
-
-        .amount-card {
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
+        .party-detail {
+            font-size: 10px;
+            color: #64748b;
+        }
+        .amount-section {
+            background-color: #f8fafc;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 20px;
             text-align: center;
             margin-bottom: 40px;
+            border: 1px solid #e2e8f0;
         }
-
         .amount-label {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
-            color: #6B7280;
+            color: #64748b;
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 10px;
         }
-
         .amount-value {
-            font-size: 40px;
-            font-weight: 900;
+            font-size: 38px;
+            font-weight: bold;
             color: #111827;
         }
-
+        .amount-verified {
+            font-size: 9px;
+            color: #0C8D5D;
+            font-weight: bold;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
         .details-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 40px;
         }
-
-        .details-table th {
-            text-align: left;
+        .details-table td {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 11px;
+        }
+        .details-label {
+            color: #64748b;
+            font-weight: bold;
+        }
+        .details-value {
+            text-align: right;
+            font-weight: bold;
+        }
+        .notes-box {
+            padding: 15px;
+            background-color: #fffbeb;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #92400e;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+        .footer {
+            margin-top: 50px;
+        }
+        .signature-table {
+            width: 100%;
+        }
+        .signature-box {
+            text-align: right;
+            width: 200px;
+        }
+        .signature-line {
+            border-top: 1px solid #111827;
+            padding-top: 5px;
             font-size: 10px;
             font-weight: bold;
-            color: #9CA3AF;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 0;
-            border-bottom: 1px solid #E5E7EB;
-        }
-
-        .details-table td {
-            padding: 15px 0;
-            font-size: 13px;
-            border-bottom: 1px solid #F3F4F6;
-        }
-
-        .details-table td.label-td {
-            font-weight: bold;
-            color: #6B7280;
-        }
-
-        .details-table td.value-td {
-            font-weight: bold;
-            color: #111827;
-            text-align: right;
-        }
-
-        .footer {
-            margin-top: 60px;
-            text-align: center;
-            font-size: 11px;
-            color: #9CA3AF;
-            border-top: 1px solid #E5E7EB;
-            padding-top: 20px;
-        }
-
-        .signature-box {
-            margin-top: 60px;
-            text-align: right;
-        }
-
-        .signature-line {
-            display: inline-block;
-            width: 200px;
-            border-top: 2px solid #111827;
-            padding-top: 10px;
-            font-size: 12px;
-            font-weight: bold;
             text-transform: uppercase;
         }
-
-        /* Watermark */
-        .watermark {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            opacity: 0.1;
-            z-index: -1000;
+        .thanks-bar {
+            background-color: #0C8D5D;
+            color: #ffffff;
             text-align: center;
-        }
-
-        .watermark img {
+            padding: 10px;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: absolute;
+            bottom: 0;
             width: 100%;
-            height: auto;
-            object-fit: contain;
         }
     </style>
 </head>
-
 <body>
-    @if($payment->invoice && $payment->invoice->logo)
-        <div class="watermark">
-            <img
-                src="{{ Str::startsWith($payment->invoice->logo, 'http') ? $payment->invoice->logo : public_path('storage/' . $payment->invoice->logo) }}">
-        </div>
-    @endif
-    <div class="header">
-        <table style="width: 100%;">
+    @php
+        $business = $payment->business ?? ($payment->invoice && $payment->invoice->business ? $payment->invoice->business : auth()->user()->businesses()->first());
+        $client_name = $payment->invoice ? $payment->invoice->client_name : ($payment->client_name ?? 'Valued Client');
+    @endphp
+
+    <div class="header-bar">
+        <table class="header-table">
             <tr>
-                <td><span class="receipt-title">Payment Receipt</span></td>
-                <td class="receipt-meta">
-                    <div>Receipt Number</div>
-                    <div class="receipt-number">#{{ $payment->receipt_number }}</div>
+                <td style="width: 80px;">
+                    @if($business && $business->logo)
+                        <div class="business-logo-container">
+                            <img src="{{ public_path('storage/' . $business->logo) }}" class="business-logo">
+                        </div>
+                    @endif
+                </td>
+                <td>
+                    <div style="font-size: 18px; font-weight: bold; letter-spacing: -1px;">{{ $business->name ?? 'Receipt' }}</div>
+                    <div style="font-size: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold; text-transform: uppercase;">{{ $business->tagline ?? 'Payment Confirmation' }}</div>
+                </td>
+                <td style="text-align: right;">
+                    <div class="receipt-label">Receipt #{{ $payment->receipt_number }}</div>
+                    <div class="receipt-title">RECEIPT</div>
+                    <div style="font-size: 11px; color: #ffffff; font-weight: bold; margin-top: 5px; opacity: 0.8;">{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M, Y') }}</div>
                 </td>
             </tr>
         </table>
     </div>
 
-    <table class="info-grid">
-        <tr>
-            <td class="info-box">
-                <div class="label">Received From</div>
-                <div style="display: flex; align-items: center;">
-                    @if($payment->client_logo)
-                        <img src="{{ public_path('storage/' . $payment->client_logo) }}"
-                            style="height: 30px; margin-right: 15px; vertical-align: middle;">
-                    @endif
-                    <div class="value" style="display: inline-block; vertical-align: middle;">
-                        {{ $payment->invoice ? $payment->invoice->client_name : ($payment->client_name ?? 'Valued Client') }}
+    <div class="container">
+        <table class="parties-table">
+            <tr>
+                <td class="party-box">
+                    <div class="section-label">Received From</div>
+                    <div class="party-card">
+                        <table style="width: 100%;">
+                            <tr>
+                                @if($payment->client_logo)
+                                    <td style="width: 45px;">
+                                        <img src="{{ public_path('storage/' . $payment->client_logo) }}" style="width: 35px; border-radius: 5px;">
+                                    </td>
+                                @endif
+                                <td>
+                                    <div class="party-name">{{ $client_name }}</div>
+                                    <div class="party-detail">Authorized Payer</div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                </div>
-            </td>
-            <td class="info-box" style="text-align: right;">
-                <div class="label">Date of Payment</div>
-                <div class="value">{{ \Carbon\Carbon::parse($payment->payment_date)->format('F d, Y') }}</div>
-            </td>
-        </tr>
-    </table>
-
-    <div class="amount-card">
-        <div class="amount-label">Amount Received</div>
-        <div class="amount-value">Rs. {{ number_format($payment->amount, 2) }}</div>
-    </div>
-
-    <table class="details-table">
-        <thead>
-            <tr>
-                <th colspan="2">Payment Details</th>
+                </td>
+                <td style="width: 4%;"></td>
+                <td class="party-box">
+                    <div class="section-label" style="border-left-color: #111827; text-align: right; padding-right: 8px; border-right: 3px solid #111827; border-left: none;">Paid To</div>
+                    <div class="party-card-primary">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td>
+                                    <div class="party-name" style="color: #ffffff;">{{ $business->name ?? 'Company Name' }}</div>
+                                    <div class="party-detail" style="color: rgba(255, 255, 255, 0.7);">Authorized Business</div>
+                                </td>
+                                @if($business && $business->logo)
+                                    <td style="width: 45px; text-align: right;">
+                                        <img src="{{ public_path('storage/' . $business->logo) }}" style="width: 35px; background: white; padding: 2px; border-radius: 5px;">
+                                    </td>
+                                @endif
+                            </tr>
+                        </table>
+                    </div>
+                </td>
             </tr>
-        </thead>
-        <tbody>
+        </table>
+
+        <div class="amount-section">
+            <div class="amount-label">Total Amount Received</div>
+            <div class="amount-value"><span style="color: #0C8D5D; font-size: 18px;">Rs.</span> {{ number_format($payment->amount, 2) }}</div>
+            <div class="amount-verified">★ Payment Verified ★</div>
+        </div>
+
+        <table class="details-table">
             <tr>
-                <td class="label-td">Payment Method</td>
-                <td class="value-td">{{ $payment->payment_method }}</td>
+                <td class="details-label">Payment Method</td>
+                <td class="details-value">{{ $payment->payment_method }}</td>
             </tr>
             @if($payment->reference_number)
                 <tr>
-                    <td class="label-td">Reference / Transaction ID</td>
-                    <td class="value-td">{{ $payment->reference_number }}</td>
+                    <td class="details-label">Transaction Reference</td>
+                    <td class="details-value">{{ $payment->reference_number }}</td>
                 </tr>
             @endif
             @if($payment->invoice)
                 <tr>
-                    <td class="label-td">Linked Invoice</td>
-                    <td class="value-td">{{ $payment->invoice->invoice_number }}</td>
+                    <td class="details-label">Invoice Reference</td>
+                    <td class="details-value">{{ $payment->invoice->invoice_number }}</td>
                 </tr>
-            @endif
-            @if($payment->notes)
                 <tr>
-                    <td class="label-td">Account Notes</td>
-                    <td class="value-td" style="font-weight: normal; color: #6B7280; font-style: italic;">
-                        {{ $payment->notes }}
+                    <td class="details-label">Original Invoice Total</td>
+                    <td class="details-value">Rs. {{ number_format($payment->invoice->total, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="details-label">Total Amount Paid</td>
+                    <td class="details-value" style="color: #0C8D5D;">Rs. {{ number_format($payment->invoice->paid_amount, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="details-label">Remaining Balance</td>
+                    <td class="details-value" style="color: {{ $payment->invoice->remaining_balance > 0 ? '#111827' : '#9CA3AF' }};">
+                        Rs. {{ number_format($payment->invoice->remaining_balance, 2) }}
+                        @if($payment->invoice->remaining_balance == 0) (Settled) @endif
                     </td>
                 </tr>
             @endif
-        </tbody>
-    </table>
+        </table>
 
-    <div class="signature-box">
-        <div class="signature-line">Authorized Signatory</div>
+        @if($payment->notes)
+            <div class="notes-box">
+                "{{ $payment->notes }}"
+            </div>
+        @endif
+
+        <div class="footer">
+            <table class="signature-table">
+                <tr>
+                    <td style="font-size: 9px; color: #94a3b8; font-style: italic; vertical-align: bottom;">
+                        This document serves as an official proof of payment. <br>
+                        Generated on {{ date('Y-m-d H:i:s') }}
+                    </td>
+                    <td class="signature-box">
+                        <div style="height: 30px;"></div>
+                        <div class="signature-line">Authorized Signatory</div>
+                        <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">{{ auth()->user()->name }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Watermark (Drawn on Top) -->
+        <div class="watermark">
+            @if($business && $business->logo)
+                <img src="{{ public_path('storage/' . $business->logo) }}" style="width: 100%;">
+            @elseif($business)
+                <div style="font-size: 90px; font-weight: 900; color: #0C8D5D; opacity: 0.1; transform: rotate(-25deg); white-space: nowrap; text-transform: uppercase; letter-spacing: 8px;">
+                    {{ $business->name }}
+                </div>
+            @endif
+        </div>
     </div>
 
-    <div class="footer">
-        Thank you for your payment. This is a computer generated receipt.
+    <div class="thanks-bar">
+        Thank you for your business
     </div>
 </body>
-
 </html>

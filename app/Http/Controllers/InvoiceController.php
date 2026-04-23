@@ -59,10 +59,10 @@ class InvoiceController extends Controller
             'client_phone' => 'nullable|string',
             'client_logo' => 'nullable|string',
             'bank_details' => 'nullable|string',
-            'logo' => 'nullable|string', // URL/Path
             'tax_rate' => 'nullable|numeric|min:0',
             'payment_qr_link' => 'nullable|string',
             'payment_qr_image' => 'nullable|image|max:2048',
+            'business_profile' => 'nullable|exists:businesses,id',
 
             'items' => 'required|array',
             'items.*.description' => 'required|string',
@@ -109,6 +109,7 @@ class InvoiceController extends Controller
             'logo' => $data['logo'] ?? null,
             'payment_qr_link' => $data['payment_qr_link'] ?? null,
             'payment_qr_image' => $data['payment_qr_image'] ?? null,
+            'business_profile' => $data['business_profile'] ?? null,
 
             'client_name' => $data['client_name'],
             'client_address' => $data['client_address'],
@@ -177,10 +178,10 @@ class InvoiceController extends Controller
             'client_phone' => 'nullable|string',
             'client_logo' => 'nullable|string',
             'bank_details' => 'nullable|string',
-            'logo' => 'nullable|string',
             'tax_rate' => 'nullable|numeric|min:0',
             'payment_qr_link' => 'nullable|string',
             'payment_qr_image' => 'nullable|image|max:2048',
+            'business_profile' => 'nullable|exists:businesses,id',
 
             'items' => 'required|array',
             'items.*.description' => 'required|string',
@@ -236,6 +237,7 @@ class InvoiceController extends Controller
             'logo' => $data['logo'] ?? null,
             'payment_qr_link' => $data['payment_qr_link'] ?? null,
             'payment_qr_image' => $data['payment_qr_image'] ?? $invoice->payment_qr_image,
+            'business_profile' => $data['business_profile'] ?? $invoice->business_profile,
 
             'client_name' => $data['client_name'],
             'client_address' => $data['client_address'],

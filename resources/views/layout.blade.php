@@ -41,6 +41,8 @@
 
         /* Nav link active / hover states handled via Tailwind classes below */
     </style>
+    <!-- Clerk JS SDK -->
+    <script async crossorigin="anonymous" data-clerk-publishable-key="{{ env('CLERK_PUBLISHABLE_KEY') }}" src="{{ env('CLERK_FRONTEND_API') }}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
 
 <body class="bg-gray-50 flex flex-col min-h-screen">
@@ -124,18 +126,20 @@
                                     <i class="fas fa-plus text-xs"></i> New Invoice
                                 </a>
                             <div class="text-right">
-                                <p class="text-xs font-black text-gray-900 leading-tight">{{ Auth::user()->name }}</p>
-                                <form action="{{ route('logout') }}" method="POST">
+                                <a href="{{ route('profile') }}" class="block">
+                                    <p class="text-xs font-black text-gray-900 leading-tight hover:text-primary transition-colors cursor-pointer">{{ Auth::user()->name }}</p>
+                                </a>
+                                <form id="logout-form-desktop" action="{{ route('logout') }}" method="POST" style="display: none;">
                                     @csrf
-                                    <button type="submit"
-                                        class="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest">
-                                        Logout
-                                    </button>
                                 </form>
+                                <button type="button" onclick="handleGlobalLogout('logout-form-desktop')"
+                                    class="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest">
+                                    Logout
+                                </button>
                             </div>
-                            <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0">
+                            <a href="{{ route('profile') }}" class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0 hover:bg-primary hover:text-white transition-all cursor-pointer">
                                 {{ substr(Auth::user()->name, 0, 1) }}
-                            </div>
+                            </a>
                         </div>
                     @endauth
 
@@ -195,18 +199,16 @@
 
                 @auth
                     <div class="pt-4 mt-2 border-t border-gray-100 flex items-center gap-3 px-4">
-                        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black shrink-0">
+                        <a href="{{ route('profile') }}" class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black shrink-0">
                             {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <p class="text-xs font-black text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                            <form action="{{ route('logout') }}" method="POST">
+                        </a>
+                            <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf
-                                <button type="submit"
-                                    class="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest">
-                                    Logout
-                                </button>
                             </form>
+                            <button type="button" onclick="handleGlobalLogout('logout-form-mobile')"
+                                class="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest">
+                                Logout
+                            </button>
                         </div>
                     </div>
                 @endauth
@@ -350,6 +352,19 @@
                 backToTop.classList.remove('opacity-100', 'translate-y-0');
             }
         });
+
+        // ── Global Logout ───────────────────────────────────────────
+        async function handleGlobalLogout(formId) {
+            try {
+                if (window.Clerk && Clerk.user) {
+                    await Clerk.signOut();
+                }
+            } catch (e) {
+                console.error("Clerk signout failed", e);
+            } finally {
+                document.getElementById(formId).submit();
+            }
+        }
     </script>
     @stack('scripts')
 </body>

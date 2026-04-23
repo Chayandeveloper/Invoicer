@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
@@ -85,4 +86,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('businesses', BusinessController::class);
     Route::resource('clients', ClientController::class);
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });

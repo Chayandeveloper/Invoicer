@@ -188,6 +188,13 @@
             @endif
 
             <!-- Clerk Login/Signup -->
+            <div id="clerk-user-identity" class="hidden mb-4 p-4 bg-white/5 border border-white/10 rounded-2xl animate-fade-in text-center">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Signed in as <span id="clerk-display-name" class="text-white"></span></p>
+                <button type="button" onclick="Clerk.signOut(() => window.location.reload())" class="text-[9px] font-black text-primary hover:text-white uppercase tracking-widest transition-all">
+                    Not you? Sign Out
+                </button>
+            </div>
+
             <div class="space-y-3">
                 <a href="{{ route('register') }}"
                     class="btn-primary flex items-center justify-center gap-3 w-full p-4 rounded-2xl font-black text-[13px] uppercase tracking-widest transition-all shadow-lg hover:shadow-primary/20">
@@ -300,8 +307,14 @@
                 // If already signed into Clerk, sync with Laravel automatically
                 // BUT skip if we just logged out manually to prevent immediate re-login
                 const isManualLogout = {{ session('manual_logout') ? 'true' : 'false' }};
-                if (Clerk.user && !isManualLogout) {
-                    syncWithLaravel(Clerk.user);
+                if (Clerk.user) {
+                    if (!isManualLogout) {
+                        syncWithLaravel(Clerk.user);
+                    } else {
+                        // Show who they are signed in as in Clerk
+                        document.getElementById('clerk-user-identity').classList.remove('hidden');
+                        document.getElementById('clerk-display-name').innerText = Clerk.user.fullName || Clerk.user.primaryEmailAddress.emailAddress;
+                    }
                 }
             } catch (error) {
                 console.error('Clerk failed to load:', error);

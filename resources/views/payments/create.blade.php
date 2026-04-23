@@ -40,11 +40,13 @@
                                 <option value="">-- Manual Entry / No Invoice --</option>
                                 @foreach($invoices as $invoice)
                                     <option value="{{ $invoice->id }}" 
-                                        data-amount="{{ $invoice->total }}" 
+                                        data-total="{{ $invoice->total }}" 
+                                        data-balance="{{ $invoice->balance }}"
                                         data-client-name="{{ $invoice->client_name }}"
                                         data-client-logo="{{ $invoice->logo }}"
+                                        data-business-id="{{ $invoice->business_profile }}"
                                         {{ (isset($selectedInvoice) && $selectedInvoice->id == $invoice->id) ? 'selected' : '' }}>
-                                        {{ $invoice->invoice_number }} (Rs. {{ number_format($invoice->total, 2) }})
+                                        {{ $invoice->invoice_number }} (Bal: Rs. {{ number_format($invoice->balance, 2) }})
                                     </option>
                                 @endforeach
                             </select>
@@ -52,8 +54,23 @@
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Amount Received (Rs.)</label>
                             <input type="number" name="amount" id="amount" step="0.01" required
-                                value="{{ isset($selectedInvoice) ? $selectedInvoice->total : '' }}"
+                                value="{{ isset($selectedInvoice) ? $selectedInvoice->balance : '' }}"
                                 class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-black focus:ring-primary focus:border-primary p-4 text-primary">
+                            
+                            <div id="balance-summary" class="hidden mt-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-tight">
+                                    <span class="text-gray-400">Invoice Total</span>
+                                    <span class="text-gray-900" id="summary-total">Rs. 0.00</span>
+                                </div>
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-tight mt-1">
+                                    <span class="text-gray-400">Already Paid</span>
+                                    <span class="text-green-600" id="summary-paid">Rs. 0.00</span>
+                                </div>
+                                <div class="flex justify-between text-[10px] font-black uppercase tracking-tight mt-1 pt-1 border-t border-primary/10">
+                                    <span class="text-gray-500">Remaining</span>
+                                    <span class="text-primary" id="summary-balance">Rs. 0.00</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -77,8 +94,23 @@
                         </div>
                     </div>
 
+                    <!-- Business Selection -->
                     <div class="border-t border-gray-50 pt-6">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client Selection</label>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Issuing Business (Receipt From)</label>
+                        <select name="business_id" id="business_id" required
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4">
+                            <option value="" disabled {{ !isset($selectedInvoice) ? 'selected' : '' }}>-- Select Issuing Business --</option>
+                            @foreach($businesses as $business)
+                                <option value="{{ $business->id }}" {{ (isset($selectedInvoice) && $selectedInvoice->business_profile == $business->id) ? 'selected' : '' }}>
+                                    {{ $business->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-2 text-[10px] text-gray-400 italic ml-1">You must select a business profile to issue this receipt.</p>
+                    </div>
+
+                    <div class="border-t border-gray-50 pt-6">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client Selection (Received From)</label>
                         <select id="client_select" onchange="populateFromClient()"
                             class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 mb-4">
                             <option value="">-- Manual Entry / No Client --</option>
@@ -124,27 +156,45 @@
             const clientNameInput = document.getElementById('client_name');
             const clientLogoInput = document.getElementById('client_logo');
             const clientSelect = document.getElementById('client_select');
+            const businessSelect = document.getElementById('business_id');
             
+            const summaryDiv = document.getElementById('balance-summary');
+            const summaryTotal = document.getElementById('summary-total');
+            const summaryPaid = document.getElementById('summary-paid');
+            const summaryBalance = document.getElementById('summary-balance');
+
             const selectedOption = select.options[select.selectedIndex];
             
             if (selectedOption.value) {
                 // Auto-fill from Invoice
-                if (selectedOption.dataset.amount) {
-                    amountInput.value = selectedOption.dataset.amount;
+                const total = parseFloat(selectedOption.getAttribute('data-total')) || 0;
+                const balance = parseFloat(selectedOption.getAttribute('data-balance')) || 0;
+                const clientName = selectedOption.getAttribute('data-client-name');
+                const clientLogo = selectedOption.getAttribute('data-client-logo');
+                const businessId = selectedOption.getAttribute('data-business-id');
+
+                amountInput.value = balance.toFixed(2);
+                if (clientName) clientNameInput.value = clientName;
+                if (clientLogo) clientLogoInput.value = clientLogo;
+                
+                if (businessId) {
+                    businessSelect.value = businessId;
                 }
-                if (selectedOption.dataset.clientName) {
-                    clientNameInput.value = selectedOption.dataset.clientName;
-                }
-                if (selectedOption.dataset.clientLogo) {
-                    clientLogoInput.value = selectedOption.dataset.clientLogo;
-                }
-                // Optional: Clear client select if an invoice is picked to avoid confusion
-                clientSelect.value = "";
+                
+                // Show Summary
+                summaryDiv.classList.remove('hidden');
+                summaryTotal.innerText = 'Rs. ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+                summaryPaid.innerText = 'Rs. ' + (total - balance).toLocaleString(undefined, {minimumFractionDigits: 2});
+                summaryBalance.innerText = 'Rs. ' + balance.toLocaleString(undefined, {minimumFractionDigits: 2});
+
+                if (clientSelect) clientSelect.value = "";
             } else {
                 // Clear fields if Manual Entry is selected
                 amountInput.value = '';
                 clientNameInput.value = '';
                 clientLogoInput.value = '';
+                if (businessSelect) businessSelect.value = '';
+                summaryDiv.classList.add('hidden');
             }
         }
 

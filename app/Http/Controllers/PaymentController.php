@@ -19,12 +19,22 @@ class PaymentController extends Controller
     public function create(Request $request)
     {
         $invoices = auth()->user()->invoices()->where('status', '!=', 'Paid')->get();
+        
+        // Append remaining balance to each invoice for the view
+        foreach ($invoices as $invoice) {
+            $invoice->balance = $invoice->remaining_balance;
+        }
+
         $selectedInvoice = null;
         if ($request->has('invoice_id')) {
-            $selectedInvoice = auth()->user()->invoices()->find($request->invoice_id);
+            $selectedInvoice = auth()->user()->invoices()->with('payments')->find($request->invoice_id);
+            if ($selectedInvoice) {
+                $selectedInvoice->balance = $selectedInvoice->remaining_balance;
+            }
         }
         $clients = auth()->user()->clients()->get();
-        return view('payments.create', compact('invoices', 'selectedInvoice', 'clients'));
+        $businesses = auth()->user()->businesses()->get();
+        return view('payments.create', compact('invoices', 'selectedInvoice', 'clients', 'businesses'));
     }
 
     public function store(Request $request)
@@ -39,6 +49,7 @@ class PaymentController extends Controller
             'client_name' => 'nullable|string',
             'client_logo' => 'nullable|string',
             'notes' => 'nullable|string',
+            'business_id' => 'required|exists:businesses,id',
         ]);
 
         if (isset($data['invoice_id'])) {
@@ -52,9 +63,16 @@ class PaymentController extends Controller
         $payment = auth()->user()->payments()->create($data);
 
         if ($payment->invoice_id) {
-            $invoice = auth()->user()->invoices()->find($payment->invoice_id);
-            // Mark as Paid if selecting an invoice
-            $invoice->update(['status' => 'Paid']);
+            $invoice = auth()->user()->invoices()->with('payments')->find($payment->invoice_id);
+            
+            // Calculate total paid including this payment
+            $totalPaid = $invoice->payments()->sum('amount');
+            
+            if ($totalPaid >= $invoice->total) {
+                $invoice->update(['status' => 'Paid']);
+            } else {
+                $invoice->update(['status' => 'Partial']);
+            }
         }
 
         return redirect()->route('payments.show', $payment->id)->with('success', 'Payment recorded and receipt generated');
@@ -62,13 +80,13 @@ class PaymentController extends Controller
 
     public function show($id)
     {
-        $payment = auth()->user()->payments()->findOrFail($id);
+        $payment = auth()->user()->payments()->with(['invoice.business', 'business'])->findOrFail($id);
         return view('payments.show', compact('payment'));
     }
 
     public function download($id)
     {
-        $payment = auth()->user()->payments()->with('invoice')->findOrFail($id);
+        $payment = auth()->user()->payments()->with(['invoice.business', 'business'])->findOrFail($id);
         $pdf = Pdf::loadView('payments.pdf', compact('payment'));
         return $pdf->download('Receipt-' . $payment->receipt_number . '.pdf');
     }

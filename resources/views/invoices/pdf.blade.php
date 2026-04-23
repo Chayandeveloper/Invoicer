@@ -364,6 +364,16 @@
                         <td style="color: #111827;">Total</td>
                         <td class="text-right">Rs. {{ number_format($invoice->total, 2) }}</td>
                     </tr>
+                    @if($invoice->status !== 'Draft' && $invoice->paid_amount > 0)
+                        <tr>
+                            <td class="text-gray text-xs" style="padding-top: 10px; border-bottom: none;">Total Paid</td>
+                            <td class="text-right font-bold text-xs" style="padding-top: 10px; color: #065f46; border-bottom: none;">Rs. {{ number_format($invoice->paid_amount, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-xs" style="border-bottom: none;">Remaining Balance</td>
+                            <td class="text-right font-bold text-xs" style="color: {{ $invoice->remaining_balance > 0 ? '#0C8D5D' : '#9ca3af' }}; border-bottom: none;">Rs. {{ number_format($invoice->remaining_balance, 2) }}</td>
+                        </tr>
+                    @endif
                 </table>
         </td>
         </tr>
