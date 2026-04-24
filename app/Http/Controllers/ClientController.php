@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $clients = auth()->user()->clients()->latest()->get();
         return view('clients.index', compact('clients'));
@@ -26,16 +26,22 @@ class ClientController extends Controller
             'address' => 'nullable|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
+            'industry' => 'nullable|string',
+            'website' => 'nullable|url',
+            'gst_number' => 'nullable|string',
+            'notes' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        $data['status'] = 'lead';
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('clients', 'public');
         }
 
-        auth()->user()->clients()->create(array_merge($data, ['user_id' => auth()->id()]));
+        auth()->user()->clients()->create($data);
 
-        return redirect()->route('clients.index');
+        return redirect()->route('clients.index')->with('success', 'Client created successfully');
     }
 
     public function edit($id)
@@ -52,11 +58,14 @@ class ClientController extends Controller
             'address' => 'nullable|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
+            'industry' => 'nullable|string',
+            'website' => 'nullable|url',
+            'gst_number' => 'nullable|string',
+            'notes' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($request->hasFile('logo')) {
-            // Delete old logo if exists
             if ($client->logo && Storage::disk('public')->exists($client->logo)) {
                 Storage::disk('public')->delete($client->logo);
             }
@@ -65,7 +74,7 @@ class ClientController extends Controller
 
         $client->update($data);
 
-        return redirect()->route('clients.index');
+        return redirect()->route('clients.index')->with('success', 'Client updated successfully');
     }
 
     public function destroy($id)
@@ -79,5 +88,18 @@ class ClientController extends Controller
         $client->delete();
 
         return redirect()->route('clients.index')->with('success', 'Client deleted successfully');
+    }
+
+    public function toggleStatus(Request $request, $id)
+    {
+        $client = auth()->user()->clients()->findOrFail($id);
+        $newStatus = $request->get('status');
+        
+        if (in_array($newStatus, ['active', 'archived', 'lead'])) {
+            $client->update(['status' => $newStatus]);
+            return back()->with('success', "Client status updated to {$newStatus}");
+        }
+        
+        return back()->with('error', 'Invalid status');
     }
 }

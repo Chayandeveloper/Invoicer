@@ -12,17 +12,31 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class QuotationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $quotations = auth()->user()->quotations()->latest()->get();
-        return view('quotations.index', compact('quotations'));
+        $query = auth()->user()->quotations()->latest();
+        $filteredClient = null;
+
+        if ($request->has('client_id')) {
+            $query->where('client_id', $request->client_id);
+            $filteredClient = auth()->user()->clients()->find($request->client_id);
+        }
+
+        $quotations = $query->get();
+        return view('quotations.index', compact('quotations', 'filteredClient'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $businesses = auth()->user()->businesses;
         $clients = auth()->user()->clients;
-        return view('quotations.create', compact('businesses', 'clients'));
+        $selected_client = null;
+
+        if ($request->has('client_id')) {
+            $selected_client = auth()->user()->clients()->find($request->client_id);
+        }
+
+        return view('quotations.create', compact('businesses', 'clients', 'selected_client'));
     }
 
     public function store(Request $request)
@@ -34,6 +48,7 @@ class QuotationController extends Controller
             'sender_phone' => 'nullable|string',
             'sender_logo' => 'nullable|string',
             'client_name' => 'required|string',
+            'client_id' => 'nullable|exists:clients,id',
             'client_phone' => 'nullable|string',
             'client_logo' => 'nullable|string',
             'client_address' => 'nullable|string',
@@ -75,6 +90,24 @@ class QuotationController extends Controller
             $quotation->items()->create(array_merge($item, [
                 'amount' => $lineAmount
             ]));
+        }
+
+        // Auto-activate client if they are currently a lead
+        if ($quotation->client_id) {
+            $client = auth()->user()->clients()->find($quotation->client_id);
+            if ($client && $client->status === 'lead') {
+                $client->update(['status' => 'active']);
+            }
+        } elseif ($quotation->client_name) {
+            $client = auth()->user()->clients()->where('name', $quotation->client_name)->first();
+            if ($client) {
+                // Link the quotation to the found client
+                $quotation->update(['client_id' => $client->id]);
+                
+                if ($client->status === 'lead') {
+                    $client->update(['status' => 'active']);
+                }
+            }
         }
 
         return redirect()->route('quotations.index')->with('success', 'Quotation created successfully');

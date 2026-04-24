@@ -11,6 +11,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SalesController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
@@ -85,7 +86,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('payments', PaymentController::class);
 
     Route::resource('businesses', BusinessController::class);
+    Route::get('/sales/clients', [SalesController::class, 'clients'])->name('sales.clients');
+    Route::get('/sales/prospects', [SalesController::class, 'prospects'])->name('sales.prospects');
+
+    Route::patch('/clients/{id}/status', [ClientController::class, 'toggleStatus'])->name('clients.toggleStatus');
     Route::resource('clients', ClientController::class);
+
+
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });

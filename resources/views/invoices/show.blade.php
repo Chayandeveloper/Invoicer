@@ -277,6 +277,11 @@
 
         <!-- Footer / Thank you note -->
         <div class="relative z-10 mt-auto pt-4 border-t border-gray-100 text-center text-gray-500 text-sm">
+            @if($invoice->footer_logo)
+                <div class="mb-4 flex justify-center">
+                    <img src="{{ asset('storage/' . $invoice->footer_logo) }}" class="h-16 object-contain" alt="Footer Logo">
+                </div>
+            @endif
             <p>Thank you for your business!</p>
         </div>
 

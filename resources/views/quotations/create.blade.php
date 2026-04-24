@@ -102,7 +102,8 @@
                             @foreach($clients as $client)
                                 <option value="{{ $client->id }}" data-name="{{ $client->name }}"
                                     data-address="{{ $client->address }}" data-phone="{{ $client->phone }}"
-                                    data-logo="{{ $client->logo }}">
+                                    data-logo="{{ $client->logo }}"
+                                    {{ (isset($selected_client) && $selected_client->id == $client->id) ? 'selected' : '' }}>
                                     {{ $client->name }}
                                 </option>
                             @endforeach
@@ -110,6 +111,7 @@
                     </div>
 
                     <div class="space-y-4" id="client_details_fields" style="display: none;">
+                        <input type="hidden" name="client_id" id="client_id">
                         <input type="hidden" name="client_logo" id="client_logo">
                         <div>
                             <label
@@ -317,11 +319,13 @@
                 clientNameInput.required = true;
 
                 if (selectedOption.value === "manual") {
+                    document.getElementById('client_id').value = '';
                     document.getElementById('client_name').value = '';
                     document.getElementById('client_address').value = '';
                     document.getElementById('client_phone').value = '';
                     document.getElementById('client_logo').value = '';
                 } else {
+                    document.getElementById('client_id').value = selectedOption.value;
                     document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
                     document.getElementById('client_address').value = selectedOption.getAttribute('data-address');
                     document.getElementById('client_phone').value = selectedOption.getAttribute('data-phone');
@@ -403,5 +407,14 @@
             document.getElementById('global-tax-display').textContent = 'Rs. ' + globalTax.toLocaleString('en-IN', { minimumFractionDigits: 2 });
             document.getElementById('total-display').textContent = 'Rs. ' + total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('business_select').value) {
+                populateBusiness();
+            }
+            if (document.getElementById('client_select').value) {
+                populateClient();
+            }
+        });
     </script>
 @endsection

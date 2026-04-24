@@ -4,7 +4,19 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
         <div>
             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Quotations</h1>
-            <p class="text-sm text-gray-500 font-medium">Manage and track your business proposals</p>
+            @if(isset($filteredClient) && $filteredClient)
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-xs font-bold border border-indigo-100 flex items-center gap-2 italic">
+                        <i class="fas fa-filter text-[10px]"></i>
+                        Filtered for: <span class="font-black text-gray-900">{{ $filteredClient->name }}</span>
+                    </span>
+                    <a href="{{ route('quotations.index') }}" class="text-[10px] font-black text-gray-400 hover:text-rose-500 uppercase tracking-widest transition-colors flex items-center gap-1">
+                        <i class="fas fa-times-circle"></i> Clear
+                    </a>
+                </div>
+            @else
+                <p class="text-sm text-gray-500 font-medium">Manage and track your business proposals</p>
+            @endif
         </div>
         <a href="{{ route('quotations.create') }}"
             class="w-full sm:w-auto bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dark transition shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm">

@@ -4,7 +4,19 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
         <div class="flex-grow">
             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Invoices</h1>
-            <p class="text-sm text-gray-500 font-medium">Manage and track your billing operations</p>
+            @if(isset($filteredClient) && $filteredClient)
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-xs font-bold border border-indigo-100 flex items-center gap-2 italic">
+                        <i class="fas fa-filter text-[10px]"></i>
+                        Filtered for: <span class="font-black text-gray-900">{{ $filteredClient->name }}</span>
+                    </span>
+                    <a href="{{ route('invoices.index') }}" class="text-[10px] font-black text-gray-400 hover:text-rose-500 uppercase tracking-widest transition-colors flex items-center gap-1">
+                        <i class="fas fa-times-circle"></i> Clear
+                    </a>
+                </div>
+            @else
+                <p class="text-sm text-gray-500 font-medium">Manage and track your billing operations</p>
+            @endif
         </div>
         
         <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">

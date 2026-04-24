@@ -29,24 +29,38 @@ class InvoiceController extends Controller
         return back()->with('success', 'Invoice has been sent to ' . $email);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = auth()->user()->invoices()->latest()->get();
-        return view('invoices.index', compact('invoices'));
+        $query = auth()->user()->invoices()->latest();
+        $filteredClient = null;
+        
+        if ($request->has('client_id')) {
+            $query->where('client_id', $request->client_id);
+            $filteredClient = auth()->user()->clients()->find($request->client_id);
+        }
+
+        $invoices = $query->get();
+        return view('invoices.index', compact('invoices', 'filteredClient'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $businesses = auth()->user()->businesses;
         $clients = auth()->user()->clients;
+        $selected_client = null;
+        
+        if ($request->has('client_id')) {
+            $selected_client = auth()->user()->clients()->find($request->client_id);
+        }
 
-        return view('invoices.create', compact('businesses', 'clients'));
+        return view('invoices.create', compact('businesses', 'clients', 'selected_client'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'client_name' => 'required|string',
+            'client_id' => 'nullable|exists:clients,id',
             'client_address' => 'nullable|string',
             'invoice_number' => 'required|string|unique:invoices',
             'invoice_date' => 'required|date',
@@ -62,6 +76,7 @@ class InvoiceController extends Controller
             'tax_rate' => 'nullable|numeric|min:0',
             'payment_qr_link' => 'nullable|string',
             'payment_qr_image' => 'nullable|image|max:2048',
+            'footer_logo' => 'nullable|image|max:2048',
             'business_profile' => 'nullable|exists:businesses,id',
 
             'items' => 'required|array',
@@ -99,6 +114,16 @@ class InvoiceController extends Controller
             $data['payment_qr_image'] = $request->file('payment_qr_image')->store('qr_codes', 'public');
         }
 
+        if ($request->hasFile('footer_logo')) {
+            $data['footer_logo'] = $request->file('footer_logo')->store('logos', 'public');
+        }
+
+        // Fallback to business logo for footer if no new upload
+        $footerLogo = $data['footer_logo'] ?? null;
+        if (!$footerLogo && $request->filled('logo')) {
+            $footerLogo = $request->input('logo');
+        }
+
         $invoice = auth()->user()->invoices()->create([
             'user_id' => auth()->id(),
             'sender_name' => $data['sender_name'],
@@ -110,11 +135,12 @@ class InvoiceController extends Controller
             'payment_qr_link' => $data['payment_qr_link'] ?? null,
             'payment_qr_image' => $data['payment_qr_image'] ?? null,
             'business_profile' => $data['business_profile'] ?? null,
-
+            'client_id' => $data['client_id'] ?? null,
             'client_name' => $data['client_name'],
             'client_address' => $data['client_address'],
             'client_phone' => $data['client_phone'] ?? null,
             'client_logo' => $clientLogo,
+            'footer_logo' => $footerLogo,
             'invoice_number' => $data['invoice_number'],
             'invoice_date' => $data['invoice_date'],
             'due_date' => $data['due_date'],
@@ -134,6 +160,24 @@ class InvoiceController extends Controller
                 'tax_rate' => $item['tax_rate'] ?? 0,
                 'amount' => $amount,
             ]);
+        }
+        
+        // Auto-activate client if they are currently a lead
+        if ($invoice->client_id) {
+            $client = auth()->user()->clients()->find($invoice->client_id);
+            if ($client && $client->status === 'lead') {
+                $client->update(['status' => 'active']);
+            }
+        } elseif ($invoice->client_name) {
+            $client = auth()->user()->clients()->where('name', $invoice->client_name)->first();
+            if ($client) {
+                // Link the invoice to the found client
+                $invoice->update(['client_id' => $client->id]);
+                
+                if ($client->status === 'lead') {
+                    $client->update(['status' => 'active']);
+                }
+            }
         }
 
         return redirect()->route('invoices.show', $invoice->id);
@@ -166,6 +210,7 @@ class InvoiceController extends Controller
 
         $data = $request->validate([
             'client_name' => 'required|string',
+            'client_id' => 'nullable|exists:clients,id',
             'client_address' => 'nullable|string',
             'invoice_number' => 'required|string|unique:invoices,invoice_number,' . $id,
             'invoice_date' => 'required|date',
@@ -221,11 +266,24 @@ class InvoiceController extends Controller
             $data['payment_qr_image'] = $request->file('payment_qr_image')->store('qr_codes', 'public');
         }
 
+        if ($request->hasFile('footer_logo')) {
+            if ($invoice->footer_logo && Storage::disk('public')->exists($invoice->footer_logo)) {
+                Storage::disk('public')->delete($invoice->footer_logo);
+            }
+            $data['footer_logo'] = $request->file('footer_logo')->store('logos', 'public');
+        }
+
         $status = $invoice->status;
         if ($request->input('action') === 'draft') {
             $status = 'Draft';
         } elseif ($invoice->status === 'Draft' && $request->input('action') === 'generate') {
             $status = 'Pending';
+        }
+
+        // Fallback to business logo for footer if no new upload
+        $footerLogo = $data['footer_logo'] ?? $invoice->footer_logo;
+        if (!$footerLogo && $request->filled('logo')) {
+            $footerLogo = $request->input('logo');
         }
 
         $invoice->update([
@@ -238,11 +296,12 @@ class InvoiceController extends Controller
             'payment_qr_link' => $data['payment_qr_link'] ?? null,
             'payment_qr_image' => $data['payment_qr_image'] ?? $invoice->payment_qr_image,
             'business_profile' => $data['business_profile'] ?? $invoice->business_profile,
-
+            'client_id' => $data['client_id'] ?? $invoice->client_id,
             'client_name' => $data['client_name'],
             'client_address' => $data['client_address'],
             'client_phone' => $data['client_phone'] ?? null,
             'client_logo' => $clientLogo,
+            'footer_logo' => $footerLogo,
             'invoice_number' => $data['invoice_number'],
             'invoice_date' => $data['invoice_date'],
             'due_date' => $data['due_date'],
@@ -266,6 +325,19 @@ class InvoiceController extends Controller
             ]);
         }
 
+        // Auto-activate client if they are currently a lead
+        if ($invoice->client_id) {
+            $client = auth()->user()->clients()->find($invoice->client_id);
+            if ($client && $client->status === 'lead') {
+                $client->update(['status' => 'active']);
+            }
+        } elseif ($invoice->client_name) {
+            $client = auth()->user()->clients()->where('name', $invoice->client_name)->first();
+            if ($client && $client->status === 'lead') {
+                $client->update(['status' => 'active']);
+            }
+        }
+
         return redirect()->route('invoices.show', $invoice->id)->with('success', 'Invoice updated successfully');
     }
 
@@ -280,8 +352,6 @@ class InvoiceController extends Controller
     {
         $invoice = auth()->user()->invoices()->findOrFail($id);
         
-        // Items are usually deleted by cascading or explicitly if needed
-        // Assuming Invoice model has a relationship that handles this or we do it manually
         $invoice->items()->delete();
         $invoice->delete();
 

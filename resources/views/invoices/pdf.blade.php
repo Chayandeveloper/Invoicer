@@ -497,6 +497,11 @@
 
     <!-- Footer -->
     <div class="footer">
+        @if($invoice->footer_logo)
+            <div style="margin-bottom: 10px;">
+                <img src="{{ public_path('storage/' . $invoice->footer_logo) }}" style="max-height: 50px; width: auto; object-fit: contain;">
+            </div>
+        @endif
         <p>Thank you for your business!</p>
     </div>
 </body>

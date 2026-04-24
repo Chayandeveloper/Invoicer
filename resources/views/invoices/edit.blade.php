@@ -94,6 +94,23 @@
                             </div>
                         @endif
                     </div>
+
+                    <div class="mt-6">
+                        <input type="file" name="footer_logo" id="footer_logo" accept="image/*"
+                            onchange="previewFooterLogo(this)"
+                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 border-dashed border-2">
+                        <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold italic uppercase tracking-tighter">This logo will be displayed at the bottom of the invoice receipt.</p>
+                        
+                        <div id="footer_logo_preview_container" class="mt-4" style="{{ $invoice->footer_logo ? 'display: block;' : 'display: none;' }}">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Logo Preview</label>
+                            <div class="relative w-32 h-32 bg-gray-50 rounded-xl border border-gray-100 p-2 group">
+                                <img id="footer_logo_preview" src="{{ $invoice->footer_logo ? asset('storage/' . $invoice->footer_logo) : '#' }}" class="w-full h-full object-contain">
+                                <button type="button" onclick="clearFooterLogo()" class="absolute -top-2 -right-2 bg-rose-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-times text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -125,7 +142,9 @@
                     </div>
 
                     <div class="space-y-4" id="client_details_fields" style="{{ $invoice->client_name ? 'display: block;' : 'display: none;' }}">
+                        <input type="hidden" name="client_id" id="client_id" value="{{ $invoice->client_id }}">
                         <input type="hidden" name="client_logo" id="client_logo" value="{{ $invoice->client_logo }}">
+
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client Name</label>
                             <input type="text" name="client_name" id="client_name" value="{{ $invoice->client_name }}" required
@@ -313,7 +332,18 @@
                 document.getElementById('sender_website').value = selectedOption.getAttribute('data-website');
                 document.getElementById('sender_phone').value = selectedOption.getAttribute('data-phone');
                 document.getElementById('bank_details').value = selectedOption.getAttribute('data-bank');
-                document.getElementById('logo').value = selectedOption.getAttribute('data-logo');
+                
+                const businessLogo = selectedOption.getAttribute('data-logo');
+                document.getElementById('logo').value = businessLogo;
+
+                // Show business logo in footer preview if exists
+                if (businessLogo) {
+                    const preview = document.getElementById('footer_logo_preview');
+                    const container = document.getElementById('footer_logo_preview_container');
+                    const logoUrl = businessLogo.startsWith('http') ? businessLogo : '/storage/' + businessLogo;
+                    preview.src = logoUrl;
+                    container.style.display = 'block';
+                }
             } else {
                 document.getElementById('business_profile').value = '';
             }
@@ -333,11 +363,13 @@
                 clientNameInput.required = true;
 
                 if (selectedOption.value === "manual") {
+                    document.getElementById('client_id').value = '';
                     document.getElementById('client_name').value = '';
                     document.getElementById('client_address').value = '';
                     document.getElementById('client_phone').value = '';
                     document.getElementById('client_logo').value = '';
                 } else {
+                    document.getElementById('client_id').value = selectedOption.value;
                     document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
                     document.getElementById('client_address').value = selectedOption.getAttribute('data-address');
                     document.getElementById('client_phone').value = selectedOption.getAttribute('data-phone');
@@ -418,6 +450,30 @@
             document.getElementById('item-tax-display').textContent = '₹' + totalItemTax.toLocaleString('en-IN', { minimumFractionDigits: 2 });
             document.getElementById('global-tax-display').textContent = '₹' + globalTax.toLocaleString('en-IN', { minimumFractionDigits: 2 });
             document.getElementById('total-display').textContent = '₹' + total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        }
+
+        function previewFooterLogo(input) {
+            const preview = document.getElementById('footer_logo_preview');
+            const container = document.getElementById('footer_logo_preview_container');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearFooterLogo() {
+            const preview = document.getElementById('footer_logo_preview');
+            const container = document.getElementById('footer_logo_preview_container');
+            const fileInput = document.getElementById('footer_logo');
+            
+            fileInput.value = '';
+            preview.src = '#';
+            container.style.display = 'none';
         }
     </script>
 @endsection

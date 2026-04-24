@@ -1,172 +1,124 @@
 @extends('layout')
 
 @section('content')
-    <div class="max-w-2xl mx-auto">
-        <div class="flex items-center gap-4 mb-8">
-            <a href="{{ route('clients.index') }}"
-                class="p-2 bg-white rounded-xl border border-gray-100 shadow-sm text-gray-400 hover:text-primary transition">
-                <i class="fas fa-chevron-left"></i>
-            </a>
-            <div class="flex-grow">
-                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Edit Client</h1>
-                <p class="text-sm text-gray-500 font-medium">Update register details for this customer</p>
-            </div>
-            <button type="button" id="unlock-btn" onclick="unlockForm()"
-                class="flex items-center gap-2 px-4 py-2.5 bg-amber-50 text-amber-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-100 transition border border-amber-100 shadow-sm shadow-amber-500/10">
-                <i class="fas fa-unlock"></i>
-                <span>Edit Details</span>
-            </button>
+    <div class="max-w-4xl mx-auto py-12">
+        <div class="mb-10 text-center">
+            <h1 class="text-4xl font-black text-gray-900 tracking-tight italic">Update <span class="text-primary">Profile</span></h1>
+            <p class="text-sm text-gray-500 font-medium mt-2">Modifying data for {{ $client->name }}</p>
         </div>
 
-        <div class="bg-white p-6 sm:p-10 rounded-2xl border border-gray-100 shadow-sm">
-            <form id="edit-client-form" action="{{ route('clients.update', $client->id) }}" method="POST" enctype="multipart/form-data"
-                class="space-y-8">
+        @if ($errors->any())
+            <div class="mb-8 bg-rose-50 border border-rose-100 p-6 rounded-[2rem] animate-slide-in">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-rose-500 text-white p-1.5 rounded-lg text-xs"><i class="fas fa-exclamation-triangle"></i></div>
+                    <p class="text-rose-800 font-black uppercase tracking-widest text-[10px]">Please correct the following errors:</p>
+                </div>
+                <ul class="list-disc list-inside text-rose-600 text-xs font-bold space-y-1 ml-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="bg-white shadow-2xl shadow-gray-200/50 rounded-[2.5rem] border border-gray-100 overflow-hidden">
+            <form action="{{ route('clients.update', $client->id) }}" method="POST" enctype="multipart/form-data" class="p-8 md:p-12">
                 @csrf
                 @method('PUT')
-
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client
-                            Name</label>
-                        <input type="text" name="name" value="{{ old('name', $client->name) }}" required disabled
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('name') border-red-500 @enderror disabled:opacity-60 disabled:cursor-not-allowed"
-                            placeholder="Enter client or company name">
-                        @error('name')
-                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Office
-                            Address</label>
-                        <textarea name="address" rows="3" disabled
-                            class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('address') border-red-500 @enderror disabled:opacity-60 disabled:cursor-not-allowed"
-                            placeholder="Enter physical or billing address">{{ old('address', $client->address) }}</textarea>
-                        @error('address')
-                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Identity Section -->
+                    <div class="space-y-6">
                         <div>
-                            <label
-                                class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Email
-                                Address</label>
-                            <input type="email" name="email" value="{{ old('email', $client->email) }}" disabled
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('email') border-red-500 @enderror disabled:opacity-60 disabled:cursor-not-allowed"
-                                placeholder="client@email.com">
-                            @error('email')
-                                <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
-                            @enderror
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Company Identity</label>
+                            <input type="text" name="name" value="{{ old('name', $client->name) }}" required 
+                                   class="w-full bg-gray-50 border-gray-100 border-2 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none">
                         </div>
-                        <div>
-                            <label
-                                class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Phone
-                                Number</label>
-                            <input type="text" name="phone" value="{{ old('phone', $client->phone) }}" disabled
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 @error('phone') border-red-500 @enderror disabled:opacity-60 disabled:cursor-not-allowed"
-                                placeholder="+1 (555) 000-0000">
-                            @error('phone')
-                                <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client
-                            Logo (Optional)</label>
-
-                        @if($client->logo)
-                            <div id="current-logo-display" class="mb-4 flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-fit">
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($client->logo) }}"
-                                    class="h-16 w-16 object-contain rounded-lg border bg-white p-1" alt="Current Logo">
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current Branding
-                                    </p>
-                                    <p class="text-[10px] text-gray-500 font-medium">Will be replaced if a new one is uploaded
-                                    </p>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div id="new-logo-preview-container" class="hidden mb-4 flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-fit">
-                            <img id="new-logo-preview" src="#" class="h-16 w-16 object-contain rounded-lg border bg-white p-1">
+                        <div class="grid grid-cols-1 gap-4">
                             <div>
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-primary">New Logo Preview</p>
-                                <p class="text-[10px] text-gray-500 font-medium">This will replace your current logo</p>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Industry</label>
+                                <input type="text" name="industry" value="{{ old('industry', $client->industry) }}"
+                                       class="w-full bg-gray-50 border-gray-100 border-2 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none">
                             </div>
                         </div>
 
-                        <div id="logo-upload-zone"
-                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-100 border-dashed rounded-2xl bg-gray-50/50 opacity-40 grayscale pointer-events-none transition-all">
-                            <div class="space-y-1 text-center">
-                                <i class="fas fa-cloud-upload-alt text-gray-300 text-3xl mb-4"></i>
-                                <div class="flex text-sm text-gray-600">
-                                    <label for="logo-upload"
-                                        class="relative cursor-pointer bg-white rounded-md font-bold text-primary hover:text-primary-dark focus-within:outline-none px-2">
-                                        <span>Upload new logo</span>
-                                        <input id="logo-upload" name="logo" type="file" class="sr-only" accept="image/*" onchange="previewLogo(this)" disabled>
-                                    </label>
-                                    <p class="pl-1">or drag and drop</p>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Logo Design</label>
+                            <div class="flex items-center gap-6">
+                                <div id="logo-preview-container" class="h-20 w-20 bg-gray-50 rounded-2xl border-2 border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+                                    @if($client->logo)
+                                        <img id="logo-preview" src="{{ \Illuminate\Support\Facades\Storage::url($client->logo) }}" alt="Preview" class="h-full w-full object-contain">
+                                        <i id="logo-placeholder" class="fas fa-image text-gray-200 text-2xl hidden"></i>
+                                    @else
+                                        <img id="logo-preview" src="#" alt="Preview" class="hidden h-full w-full object-contain">
+                                        <i id="logo-placeholder" class="fas fa-image text-gray-200 text-2xl"></i>
+                                    @endif
                                 </div>
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">PNG, JPG up to 2MB
-                                </p>
+                                <div class="flex-grow">
+                                    <input type="file" name="logo" id="logo-input" onchange="previewLogo(this)" class="hidden">
+                                    <label for="logo-input" class="inline-block bg-white border-2 border-gray-100 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:border-primary hover:text-primary transition-all cursor-pointer">
+                                        Update Logo
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        @error('logo')
-                            <p class="text-[10px] text-red-500 mt-1 font-bold italic">{{ $message }}</p>
-                        @enderror
+                    </div>
+
+                    <!-- Contact & Financial Section -->
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Primary Email</label>
+                                <input type="email" name="email" value="{{ old('email', $client->email) }}"
+                                       class="w-full bg-gray-50 border-gray-100 border-2 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Phone Number</label>
+                                <input type="text" name="phone" value="{{ old('phone', $client->phone) }}"
+                                       class="w-full bg-gray-50 border-gray-100 border-2 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">GST/Tax Number</label>
+                            <input type="text" name="gst_number" value="{{ old('gst_number', $client->gst_number) }}"
+                                   class="w-full bg-gray-50 border-gray-100 border-2 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none">
+                        </div>
                     </div>
                 </div>
 
-                <script>
-                    function previewLogo(input) {
-                        const container = document.getElementById('new-logo-preview-container');
-                        const preview = document.getElementById('new-logo-preview');
-                        const currentLogo = document.getElementById('current-logo-display');
-                        
-                        if (input.files && input.files[0]) {
-                            const reader = new FileReader();
-                            
-                            reader.onload = function(e) {
-                                preview.src = e.target.result;
-                                container.classList.remove('hidden');
-                                if (currentLogo) currentLogo.style.opacity = '0.5';
-                            }
-                            
-                            reader.readAsDataURL(input.files[0]);
-                        }
-                    }
-                </script>
+                <div class="mt-8 space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Business Address</label>
+                        <textarea name="address" rows="3"
+                                  class="w-full bg-gray-50 border-gray-100 border-2 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none">{{ old('address', $client->address) }}</textarea>
+                    </div>
 
-                <div id="footer-actions" class="hidden flex justify-center sm:justify-end gap-4 pt-8 border-t border-gray-100 animate-slide-in">
-                    <button type="button" onclick="window.location.reload()"
-                        class="px-8 py-4 text-gray-400 font-bold hover:text-gray-600 transition text-sm">Cancel</button>
-                    <button type="submit"
-                        class="bg-primary text-white px-12 py-4 rounded-xl font-black hover:bg-primary-dark transition shadow-xl shadow-primary/20 uppercase tracking-widest text-xs">
-                        Update Client
-                    </button>
+                    <div class="pt-6 flex flex-col sm:flex-row gap-4">
+                        <button type="submit" class="flex-grow bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary-dark transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
+                            <i class="fas fa-save text-lg"></i>
+                            Update Profile
+                        </button>
+                        <a href="{{ route('clients.index') }}" class="sm:w-48 bg-gray-50 text-gray-400 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-gray-100 hover:text-gray-600 transition-all flex items-center justify-center">
+                            Back
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function unlockForm() {
-            const form = document.getElementById('edit-client-form');
-            const inputs = form.querySelectorAll('input, textarea');
-            const uploadZone = document.getElementById('logo-upload-zone');
-            const unlockBtn = document.getElementById('unlock-btn');
-            const footerActions = document.getElementById('footer-actions');
-
-            inputs.forEach(field => {
-                field.disabled = false;
-                field.removeAttribute('disabled');
-            });
-
-            if (uploadZone) uploadZone.classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
-            if (unlockBtn) unlockBtn.classList.add('hidden');
-            if (footerActions) footerActions.classList.remove('hidden');
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logo-preview').src = e.target.result;
+                    document.getElementById('logo-preview').classList.remove('hidden');
+                    document.getElementById('logo-placeholder').classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
     </script>
 @endsection
