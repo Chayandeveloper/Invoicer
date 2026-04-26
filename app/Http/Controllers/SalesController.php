@@ -13,11 +13,10 @@ class SalesController extends Controller
         
         $query = auth()->user()->clients()->latest();
 
-        // If specifically coming from "Prospects" link, filter for leads
-        if ($request->routeIs('sales.prospects') || $status === 'lead') {
-            // Prospects are those with status 'lead' AND NO invoices
+        // Filter by status
+        if ($status === 'lead') {
+            // Prospects/Leads are those with status 'lead' AND NO invoices
             $query->where('status', 'lead')->doesntHave('invoices');
-            $status = 'lead';
         } elseif ($status === 'active') {
             // Active includes those with status 'active' OR anyone with at least one invoice
             $query->where(function($q) {
@@ -36,8 +35,4 @@ class SalesController extends Controller
         return view('sales.index', compact('clients', 'status', 'totalInvoiced', 'pendingAmount'));
     }
 
-    public function prospects(Request $request)
-    {
-        return $this->clients($request);
-    }
 }

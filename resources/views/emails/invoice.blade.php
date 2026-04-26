@@ -16,7 +16,7 @@
         }
 
         .header {
-            background: #0C8D5D;
+            background: #6932BB;
             color: white;
             padding: 20px;
             text-align: center;
@@ -33,7 +33,7 @@
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background: #0C8D5D;
+            background: #6932BB;
             color: white;
             text-decoration: none;
             border-radius: 6px;
@@ -71,7 +71,7 @@
                 </tr>
                 <tr>
                     <td style="color: #6b7280;">Total Amount:</td>
-                    <td style="font-weight: bold; font-size: 18px; color: #0C8D5D;">
+                    <td style="font-weight: bold; font-size: 18px; color: #6932BB;">
                         ₹{{ number_format($invoice->total, 2) }}</td>
                 </tr>
             </table>

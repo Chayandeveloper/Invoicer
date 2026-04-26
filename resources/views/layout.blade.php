@@ -201,9 +201,26 @@
                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('sales.clients') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
                         <i class="fas fa-users w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Clients</span>
                     </a>
-                    <a href="{{ route('sales.prospects') }}" 
-                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('sales.prospects') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
-                        <i class="fas fa-user-plus w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Prospects</span>
+                    <div class="h-px bg-gray-50 mx-4 my-2"></div>
+                    <a href="{{ route('invoices.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('invoices.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
+                        <i class="fas fa-file-invoice w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Invoices</span>
+                    </a>
+                    <a href="{{ route('proforma_invoices.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('proforma_invoices.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
+                        <i class="fas fa-file-invoice-dollar w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Proforma Invoices</span>
+                    </a>
+                    <a href="{{ route('sales-receipts.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('sales-receipts.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
+                        <i class="fas fa-receipt w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Sales Receipts</span>
+                    </a>
+                    <a href="{{ route('credit-notes.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('credit-notes.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
+                        <i class="fas fa-undo-alt w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Credit Notes</span>
+                    </a>
+                    <a href="{{ route('quotations.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('quotations.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
+                        <i class="fas fa-file-contract w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Quotes</span>
                     </a>
                 </div>
             </div>
@@ -221,14 +238,6 @@
                     <i class="fas fa-receipt w-5 shrink-0"></i>
                     <span class="sidebar-text">Expenses</span>
                 </a>
-                   <a href="{{ route('invoices.index') }}" 
-                       class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('invoices.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
-                        <i class="fas fa-file-invoice w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Invoices</span>
-                    </a>
-                    <a href="{{ route('quotations.index') }}" 
-                       class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all {{ request()->routeIs('quotations.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">
-                        <i class="fas fa-file-contract w-5 text-[10px] shrink-0"></i> <span class="sidebar-text">Quotes</span>
-                    </a>
                 <a href="{{ route('payments.index') }}" 
                    class="sidebar-item flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all {{ request()->routeIs('payments.*') ? 'bg-primary/5 text-primary' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
                     <i class="fas fa-hand-holding-dollar w-5 shrink-0"></i>

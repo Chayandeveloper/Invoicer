@@ -4,17 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\HasActivityLogs;
-
-class Payment extends Model
+class SalesReceipt extends Model
 {
-    // use HasActivityLogs;
     protected $guarded = [];
-
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class);
-    }
 
     public function user()
     {
@@ -26,8 +18,8 @@ class Payment extends Model
         return $this->belongsTo(Business::class);
     }
 
-    public function getTotalValueAttribute()
+    public function invoice()
     {
-        return $this->amount + $this->credit_applied;
+        return $this->belongsTo(Invoice::class);
     }
 }

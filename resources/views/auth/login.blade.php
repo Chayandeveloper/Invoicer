@@ -60,19 +60,19 @@
 
         .input-glass:focus {
             background: rgba(255, 255, 255, 0.08);
-            border-color: #0C8D5D;
-            box-shadow: 0 0 0 4px rgba(12, 141, 93, 0.2);
+            border-color: #6932BB;
+            box-shadow: 0 0 0 4px rgba(105, 50, 187, 0.2);
             outline: none;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #0C8D5D 0%, #09704a 100%);
+            background: linear-gradient(135deg, #6932BB 0%, #522794 100%);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(12, 141, 93, 0.4);
+            box-shadow: 0 10px 20px -5px rgba(105, 50, 187, 0.4);
         }
 
         .btn-primary:active {
@@ -120,10 +120,10 @@
         }
 
         .otp-char:focus {
-            border-color: #0C8D5D;
+            border-color: #6932BB;
             background: rgba(255, 255, 255, 0.08);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(12, 141, 93, 0.2);
+            box-shadow: 0 0 0 4px rgba(105, 50, 187, 0.2);
         }
 
         #loading-overlay {
@@ -140,8 +140,8 @@
         .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(12, 141, 93, 0.1);
-            border-left-color: #0C8D5D;
+            border: 4px solid rgba(105, 50, 187, 0.1);
+            border-left-color: #6932BB;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }

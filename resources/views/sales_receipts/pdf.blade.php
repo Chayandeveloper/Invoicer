@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Payment Receipt #{{ $payment->receipt_number }}</title>
+    <title>Sales Receipt #{{ $receipt->receipt_number }}</title>
     <style>
         @page {
             margin: 0;
@@ -67,7 +67,7 @@
         }
         .parties-table {
             width: 100%;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         .party-box {
             width: 48%;
@@ -104,12 +104,19 @@
             font-size: 10px;
             color: #64748b;
         }
+        .description-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
         .amount-section {
             background-color: #f8fafc;
             padding: 30px;
             border-radius: 20px;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             border: 1px solid #e2e8f0;
         }
         .amount-label {
@@ -135,7 +142,7 @@
         .details-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         .details-table td {
             padding: 12px 0;
@@ -157,10 +164,10 @@
             font-size: 11px;
             color: #92400e;
             font-style: italic;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         .footer {
-            margin-top: 50px;
+            margin-top: 40px;
         }
         .signature-table {
             width: 100%;
@@ -192,8 +199,8 @@
 </head>
 <body>
     @php
-        $business = $payment->business ?? ($payment->invoice && $payment->invoice->business ? $payment->invoice->business : auth()->user()->businesses()->first());
-        $client_name = $payment->invoice ? $payment->invoice->client_name : ($payment->client_name ?? 'Valued Client');
+        $business = $receipt->business ?? auth()->user()->businesses()->first();
+        $client_name = $receipt->client_name ?? 'Valued Client';
     @endphp
 
     <div class="header-bar">
@@ -207,13 +214,13 @@
                     @endif
                 </td>
                 <td>
-                    <div style="font-size: 18px; font-weight: bold; letter-spacing: -1px;">{{ $business->name ?? 'Receipt' }}</div>
-                    <div style="font-size: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold; text-transform: uppercase;">{{ $business->tagline ?? 'Payment Confirmation' }}</div>
+                    <div style="font-size: 18px; font-weight: bold; letter-spacing: -1px;">{{ $business->name ?? 'Sales Receipt' }}</div>
+                    <div style="font-size: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold; text-transform: uppercase;">{{ $business->tagline ?? 'Sales Confirmation' }}</div>
                 </td>
                 <td style="text-align: right;">
-                    <div class="receipt-label">Receipt #{{ $payment->receipt_number }}</div>
-                    <div class="receipt-title">RECEIPT</div>
-                    <div style="font-size: 11px; color: #ffffff; font-weight: bold; margin-top: 5px; opacity: 0.8;">{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M, Y') }}</div>
+                    <div class="receipt-label">Receipt #{{ $receipt->receipt_number }}</div>
+                    <div class="receipt-title">SALES RECEIPT</div>
+                    <div style="font-size: 11px; color: #ffffff; font-weight: bold; margin-top: 5px; opacity: 0.8;">{{ \Carbon\Carbon::parse($receipt->receipt_date)->format('d M, Y') }}</div>
                 </td>
             </tr>
         </table>
@@ -227,9 +234,9 @@
                     <div class="party-card">
                         <table style="width: 100%;">
                             <tr>
-                                @if($payment->client_logo)
+                                @if($receipt->client_logo)
                                     <td style="width: 45px;">
-                                        <img src="{{ public_path('storage/' . $payment->client_logo) }}" style="width: 35px; border-radius: 5px;">
+                                        <img src="{{ public_path('storage/' . $receipt->client_logo) }}" style="width: 35px; border-radius: 5px;">
                                     </td>
                                 @endif
                                 <td>
@@ -250,11 +257,6 @@
                                     <div class="party-name" style="color: #ffffff;">{{ $business->name ?? 'Company Name' }}</div>
                                     <div class="party-detail" style="color: rgba(255, 255, 255, 0.7);">Authorized Business</div>
                                 </td>
-                                @if($business && $business->logo)
-                                    <td style="width: 45px; text-align: right;">
-                                        <img src="{{ public_path('storage/' . $business->logo) }}" style="width: 35px; background: white; padding: 2px; border-radius: 5px;">
-                                    </td>
-                                @endif
                             </tr>
                         </table>
                     </div>
@@ -262,64 +264,35 @@
             </tr>
         </table>
 
-        <div class="amount-section">
-            <div class="amount-label">Receipt Breakup</div>
-            <table style="width: 100%; margin-bottom: 10px;">
-                <tr>
-                    <td style="text-align: left; font-size: 10px; color: #64748b;">Total Settlement Value</td>
-                    <td style="text-align: right; font-size: 12px; font-weight: bold;">Rs. {{ number_format($payment->total_value, 2) }}</td>
-                </tr>
-                @if($payment->credit_applied > 0)
-                <tr>
-                    <td style="text-align: left; font-size: 10px; color: #64748b;">Less: Credit Applied</td>
-                    <td style="text-align: right; font-size: 12px; font-weight: bold; color: #e11d48;">- Rs. {{ number_format($payment->credit_applied, 2) }}</td>
-                </tr>
-                @endif
-            </table>
-            <div style="border-top: 1px dashed #e2e8f0; margin-top: 10px; padding-top: 10px;">
-                <div class="amount-label">Final Cash / Bank Payment</div>
-                <div class="amount-value"><span style="color: #6932BB; font-size: 18px;">Rs.</span> {{ number_format($payment->amount, 2) }}</div>
+        <div class="section-label">Item / Description</div>
+        <div class="description-box">
+            <div style="font-size: 12px; color: #111827; font-weight: bold;">
+                {{ $receipt->item_description ?? 'General Sales' }}
             </div>
-            <div class="amount-verified">★ Payment Confirmed ★</div>
+        </div>
+
+        <div class="amount-section">
+            <div class="amount-label">Total Amount Received</div>
+            <div class="amount-value"><span style="color: #6932BB; font-size: 18px;">Rs.</span> {{ number_format($receipt->amount, 2) }}</div>
+            <div class="amount-verified">★ Transaction Verified ★</div>
         </div>
 
         <table class="details-table">
             <tr>
                 <td class="details-label">Payment Method</td>
-                <td class="details-value">{{ $payment->payment_method }}</td>
+                <td class="details-value">{{ $receipt->payment_method }}</td>
             </tr>
-            @if($payment->reference_number)
+            @if($receipt->reference_number)
                 <tr>
                     <td class="details-label">Transaction Reference</td>
-                    <td class="details-value">{{ $payment->reference_number }}</td>
-                </tr>
-            @endif
-            @if($payment->invoice)
-                <tr>
-                    <td class="details-label">Invoice Reference</td>
-                    <td class="details-value">{{ $payment->invoice->invoice_number }}</td>
-                </tr>
-                <tr>
-                    <td class="details-label">Original Invoice Total</td>
-                    <td class="details-value">Rs. {{ number_format($payment->invoice->total, 2) }}</td>
-                </tr>
-                <tr>
-                    <td class="details-label">Total Amount Paid</td>
-                    <td class="details-value" style="color: #6932BB;">Rs. {{ number_format($payment->invoice->paid_amount, 2) }}</td>
-                </tr>
-                <tr>
-                    <td class="details-label">Remaining Balance</td>
-                    <td class="details-value" style="color: {{ $payment->invoice->remaining_balance > 0 ? '#111827' : '#9CA3AF' }};">
-                        Rs. {{ number_format($payment->invoice->remaining_balance, 2) }}
-                        @if($payment->invoice->remaining_balance == 0) (Settled) @endif
-                    </td>
+                    <td class="details-value">{{ $receipt->reference_number }}</td>
                 </tr>
             @endif
         </table>
 
-        @if($payment->notes)
+        @if($receipt->notes)
             <div class="notes-box">
-                "{{ $payment->notes }}"
+                "{{ $receipt->notes }}"
             </div>
         @endif
 
@@ -327,7 +300,7 @@
             <table class="signature-table">
                 <tr>
                     <td style="font-size: 9px; color: #94a3b8; font-style: italic; vertical-align: bottom;">
-                        This document serves as an official proof of payment. <br>
+                        This document serves as an official proof of sale. <br>
                         Generated on {{ date('Y-m-d H:i:s') }}
                     </td>
                     <td class="signature-box">

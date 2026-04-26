@@ -31,7 +31,7 @@ class InvoiceController extends Controller
 
     public function index(Request $request)
     {
-        $query = auth()->user()->invoices()->latest();
+        $query = auth()->user()->invoices()->where('invoice_type', 'regular')->latest();
         $filteredClient = null;
         
         if ($request->has('client_id')) {
@@ -149,6 +149,7 @@ class InvoiceController extends Controller
             'tax_rate' => $globalTaxRate, // Storing global rate for reference
             'total' => $total,
             'status' => $request->input('action') === 'draft' ? 'Draft' : 'Pending',
+            'invoice_type' => 'regular',
         ]);
 
         foreach ($request->items as $item) {
@@ -185,7 +186,7 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        $invoice = auth()->user()->invoices()->with('items')->findOrFail($id);
+        $invoice = auth()->user()->invoices()->where('invoice_type', 'regular')->with('items')->findOrFail($id);
         return view('invoices.show', compact('invoice'));
     }
 

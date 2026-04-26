@@ -12,7 +12,7 @@
         body { font-family: 'Outfit', sans-serif; background: #0f172a; display: flex; align-items: center; justify-content: center; min-height: screen; overflow: hidden; }
         .mesh-gradient { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: #0f172a; background-image: radial-gradient(at 0% 0%, hsla(158, 86%, 30%, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, hsla(158, 86%, 30%, 0.15) 0px, transparent 50%); animation: pulse 10s ease-in-out infinite alternate; }
         @keyframes pulse { 0% { opacity: 0.8; } 100% { opacity: 1; } }
-        .spinner { width: 50px; height: 50px; border: 4px solid rgba(12, 141, 93, 0.1); border-left-color: #0C8D5D; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(105, 50, 187, 0.1); border-left-color: #6932BB; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <!-- Clerk JS SDK -->

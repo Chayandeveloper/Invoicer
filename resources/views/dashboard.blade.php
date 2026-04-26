@@ -256,8 +256,8 @@
                                 {
                                     label: 'Revenue',
                                     data: {!! json_encode($revenueValues) !!},
-                                    borderColor: '#0C8D5D',
-                                    backgroundColor: 'rgba(12, 141, 93, 0.08)',
+                                    borderColor: '#6932BB',
+                                    backgroundColor: 'rgba(105, 50, 187, 0.08)',
                                     borderWidth: 4,
                                     fill: true,
                                     tension: 0.4,
@@ -296,7 +296,7 @@
                 }
 
                 if (breakdownChartEl) {
-                    const chartColors = ['#0C8D5D', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+                    const chartColors = ['#6932BB', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
                     chartColors.forEach((color, i) => {
                         document.documentElement.style.setProperty(`--chart-color-${i}`, color);
                     });
@@ -380,8 +380,8 @@
             background: conic-gradient(
                 from 0deg,
                 transparent 0deg,
-                rgba(12, 141, 93, 0.05) calc(var(--reveal-angle) - 15deg),
-                rgba(12, 141, 93, 0.4) var(--reveal-angle),
+                rgba(105, 50, 187, 0.05) calc(var(--reveal-angle) - 15deg),
+                rgba(105, 50, 187, 0.4) var(--reveal-angle),
                 transparent var(--reveal-angle)
             );
             filter: blur(8px);
@@ -408,8 +408,8 @@
             position: absolute;
             inset: 0;
             background: 
-                linear-gradient(rgba(12, 141, 93, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(12, 141, 93, 0.05) 1px, transparent 1px);
+                linear-gradient(rgba(105, 50, 187, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(105, 50, 187, 0.05) 1px, transparent 1px);
             background-size: 30px 30px;
             pointer-events: none;
             z-index: 0;
@@ -421,8 +421,8 @@
             background: conic-gradient(
                 from 0deg,
                 transparent 0deg,
-                rgba(12, 141, 93, 0.1) calc(var(--reveal-angle) - 30deg),
-                rgba(12, 141, 93, 0.6) var(--reveal-angle),
+                rgba(105, 50, 187, 0.1) calc(var(--reveal-angle) - 30deg),
+                rgba(105, 50, 187, 0.6) var(--reveal-angle),
                 transparent var(--reveal-angle)
             );
             filter: blur(5px);
@@ -449,8 +449,8 @@
         .radar-spinner {
             width: 50px;
             height: 50px;
-            border: 2px solid rgba(12, 141, 93, 0.1);
-            border-top-color: #0C8D5D;
+            border: 2px solid rgba(105, 50, 187, 0.1);
+            border-top-color: #6932BB;
             border-radius: 50%;
             animation: radar-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }

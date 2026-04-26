@@ -117,7 +117,7 @@
                     appearance: {
                         baseTheme: 'dark',
                         variables: {
-                            colorPrimary: '#0C8D5D',
+                            colorPrimary: '#6932BB',
                             colorBackground: 'transparent',
                             colorText: 'white',
                             colorInputBackground: 'rgba(255, 255, 255, 0.05)',

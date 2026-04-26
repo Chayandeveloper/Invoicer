@@ -49,7 +49,7 @@
         }
 
         .text-primary {
-            color: #0C8D5D;
+            color: #6932BB;
         }
 
         .bg-gray-100 {
@@ -79,7 +79,7 @@
         .invoice-title {
             font-size: 32px;
             font-weight: 800;
-            color: #0C8D5D;
+            color: #6932BB;
             margin-bottom: 5px;
             letter-spacing: -1px;
         }
@@ -169,7 +169,7 @@
             padding-top: 10px;
             font-size: 18px;
             font-weight: bold;
-            color: #0C8D5D;
+            color: #6932BB;
             border-bottom: none;
         }
 
@@ -232,7 +232,7 @@
                 @endif
             </td>
             <td valign="top" class="text-right">
-                <div class="invoice-title">INVOICE</div>
+                <div class="invoice-title">{{ $invoice->invoice_type === 'proforma' ? 'PROFORMA INVOICE' : 'INVOICE' }}</div>
                 <div style="line-height: 1.6; color: #4b5563; font-size: 12px;">
                     <p style="margin: 0;"><span style="font-weight: bold; color: #111827;">Invoice #:</span>
                         {{ $invoice->invoice_number }}</p>
@@ -292,7 +292,7 @@
                 @if($invoice->sender_website)
                     <div style="margin-top: 2px;">
                         <a href="{{ $invoice->sender_website }}"
-                            style="color: #0C8D5D; text-decoration: none; font-size: 12px;">{{ $invoice->sender_website }}</a>
+                            style="color: #6932BB; text-decoration: none; font-size: 12px;">{{ $invoice->sender_website }}</a>
                     </div>
                 @endif
             </td>
@@ -371,7 +371,7 @@
                         </tr>
                         <tr>
                             <td class="font-bold text-xs" style="border-bottom: none;">Remaining Balance</td>
-                            <td class="text-right font-bold text-xs" style="color: {{ $invoice->remaining_balance > 0 ? '#0C8D5D' : '#9ca3af' }}; border-bottom: none;">Rs. {{ number_format($invoice->remaining_balance, 2) }}</td>
+                            <td class="text-right font-bold text-xs" style="color: {{ $invoice->remaining_balance > 0 ? '#6932BB' : '#9ca3af' }}; border-bottom: none;">Rs. {{ number_format($invoice->remaining_balance, 2) }}</td>
                         </tr>
                     @endif
                 </table>

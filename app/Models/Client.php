@@ -36,4 +36,14 @@ class Client extends Model
         // Simple calculation: Total - Paid
         return $this->invoices()->get()->sum->remaining_balance;
     }
+
+    public function creditNotes()
+    {
+        return $this->hasMany(CreditNote::class);
+    }
+
+    public function getAvailableCreditAttribute()
+    {
+        return $this->creditNotes()->sum('remaining_amount');
+    }
 }

@@ -4,17 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\HasActivityLogs;
-
-class Payment extends Model
+class CreditNote extends Model
 {
-    // use HasActivityLogs;
     protected $guarded = [];
-
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class);
-    }
 
     public function user()
     {
@@ -26,8 +18,13 @@ class Payment extends Model
         return $this->belongsTo(Business::class);
     }
 
-    public function getTotalValueAttribute()
+    public function client()
     {
-        return $this->amount + $this->credit_applied;
+        return $this->belongsTo(Client::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(CreditNoteItem::class);
     }
 }

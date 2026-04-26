@@ -11,14 +11,14 @@
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
         <div>
             <h1 class="text-4xl font-black text-gray-900 tracking-tight">
-                {{ Request::routeIs('sales.prospects') ? 'Prospects' : 'Business Partners' }}
+                Business Partners
             </h1>
-            <p class="text-sm text-gray-500 font-medium mt-1">Manage your high-value {{ Request::routeIs('sales.prospects') ? 'leads' : 'clients' }} and financial history</p>
+            <p class="text-sm text-gray-500 font-medium mt-1">Manage your high-value clients and financial history</p>
         </div>
         <div class="flex gap-3 w-full lg:w-auto">
             <a href="{{ route('clients.create') }}"
                 class="flex-1 lg:flex-none bg-indigo-600 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 text-sm">
-                <i class="fas fa-plus-circle"></i> New {{ Request::routeIs('sales.prospects') ? 'Prospect' : 'Client' }}
+                <i class="fas fa-plus-circle"></i> New Client
             </a>
         </div>
     </div>
@@ -43,7 +43,7 @@
 
         <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-100 border border-gray-100 relative overflow-hidden group">
             <div class="relative z-10">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">{{ Request::routeIs('sales.prospects') ? 'Total Prospects' : 'Total Clients' }}</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Total Clients</p>
                 <h2 class="text-3xl font-black italic text-gray-900">{{ count($clients) }}</h2>
             </div>
             <i class="fas fa-users absolute -right-4 -bottom-4 text-7xl text-gray-50 group-hover:scale-110 transition-transform"></i>
@@ -52,7 +52,6 @@
 
     <!-- Status Tabs (Only show if not strictly on Prospects page) -->
 
-    @if(!Request::routeIs('sales.prospects'))
         <div class="mb-8 flex flex-wrap gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-fit border border-gray-200/50">
             @foreach(['active' => 'Active Clients', 'lead' => 'Leads', 'archived' => 'Archived', 'all' => 'All'] as $key => $label)
                 <a href="{{ route('sales.clients', ['status' => $key]) }}" 
@@ -61,7 +60,6 @@
                 </a>
             @endforeach
         </div>
-    @endif
 
     <!-- Mobile Card Layout -->
     <div class="lg:hidden space-y-4">

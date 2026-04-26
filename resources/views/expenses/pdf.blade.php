@@ -49,7 +49,7 @@
         }
 
         .text-primary {
-            color: #0C8D5D;
+            color: #6932BB;
         }
 
         .bg-gray-100 {
@@ -73,7 +73,7 @@
         /* Header */
         .header-table {
             margin-bottom: 30px;
-            border-bottom: 2px solid #0C8D5D;
+            border-bottom: 2px solid #6932BB;
             padding-bottom: 20px;
         }
 
@@ -85,7 +85,7 @@
         .voucher-title {
             font-size: 28px;
             font-weight: 800;
-            color: #0C8D5D;
+            color: #6932BB;
             margin-bottom: 5px;
             text-transform: uppercase;
             text-align: right;
@@ -188,7 +188,7 @@
                 @if($expense->business && $expense->business->logo)
                     <img src="{{ Str::startsWith($expense->business->logo, 'http') ? $expense->business->logo : public_path('storage/' . $expense->business->logo) }}" class="logo">
                 @else
-                    <h2 style="margin: 0; color: #0C8D5D;">{{ $expense->business->name ?? 'Expense Voucher' }}</h2>
+                    <h2 style="margin: 0; color: #6932BB;">{{ $expense->business->name ?? 'Expense Voucher' }}</h2>
                 @endif
                 @if($expense->business)
                     <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">

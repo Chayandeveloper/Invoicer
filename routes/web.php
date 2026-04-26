@@ -12,6 +12,9 @@ use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ProformaInvoiceController;
+use App\Http\Controllers\SalesReceiptController;
+use App\Http\Controllers\CreditNoteController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
@@ -74,6 +77,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.updateStatus');
     Route::resource('invoices', InvoiceController::class);
 
+    // Proforma Invoices
+    Route::post('/proforma-invoices/{id}/send-email', [ProformaInvoiceController::class, 'sendEmail'])->name('proforma_invoices.sendEmail');
+    Route::post('/proforma-invoices/{id}/convert', [ProformaInvoiceController::class, 'convert'])->name('proforma_invoices.convert');
+    Route::resource('proforma-invoices', ProformaInvoiceController::class)->names('proforma_invoices');
+
     Route::get('/quotations/{id}/download', [QuotationController::class, 'download'])->name('quotations.download');
     Route::post('/quotations/{id}/convert', [QuotationController::class, 'convertToInvoice'])->name('quotations.convert');
     Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.updateStatus');
@@ -85,9 +93,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/payments/{id}/download', [PaymentController::class, 'download'])->name('payments.download');
     Route::resource('payments', PaymentController::class);
 
+    Route::get('/sales-receipts/{id}/download', [SalesReceiptController::class, 'download'])->name('sales-receipts.download');
+    Route::resource('sales-receipts', SalesReceiptController::class);
+
     Route::resource('businesses', BusinessController::class);
+    
+    // Credit Notes
+    Route::get('/credit-notes/{id}/download', [CreditNoteController::class, 'download'])->name('credit-notes.download');
+    Route::get('/credit-notes/suggestions', [CreditNoteController::class, 'getSuggestions'])->name('credit-notes.suggestions');
+    Route::resource('credit-notes', CreditNoteController::class);
+
     Route::get('/sales/clients', [SalesController::class, 'clients'])->name('sales.clients');
-    Route::get('/sales/prospects', [SalesController::class, 'prospects'])->name('sales.prospects');
 
     Route::patch('/clients/{id}/status', [ClientController::class, 'toggleStatus'])->name('clients.toggleStatus');
     Route::resource('clients', ClientController::class);

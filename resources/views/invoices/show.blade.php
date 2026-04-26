@@ -401,7 +401,7 @@
                 min-height: auto;
                 margin: 0;
                 padding: 5mm;
-                border: 1px solid #0C8D5D !important;
+                border: 1px solid #6932BB !important;
                 box-sizing: border-box;
                 z-index: 9999;
                 background-color: white;

@@ -5,9 +5,9 @@
     <title>Quotation-{{ $quotation->quotation_number }}</title>
     <style>
         body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 50px; line-height: 1.4; }
-        .header { border-bottom: 2px solid #0C8D5D; padding-bottom: 20px; margin-bottom: 20px; }
+        .header { border-bottom: 2px solid #6932BB; padding-bottom: 20px; margin-bottom: 20px; }
         .logo { height: 60px; }
-        .title { font-size: 28px; font-weight: bold; color: #0C8D5D; text-align: right; }
+        .title { font-size: 28px; font-weight: bold; color: #6932BB; text-align: right; }
         .details-table { width: 100%; margin-bottom: 30px; }
         .details-table td { vertical-align: top; width: 50%; }
         .section-title { font-size: 10px; color: #999; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
@@ -18,7 +18,7 @@
         .text-right { text-align: right; }
         .totals-table { width: 40%; margin-left: auto; margin-top: 20px; }
         .totals-table td { padding: 5px 0; font-size: 13px; }
-        .total-row { font-size: 18px; font-weight: bold; color: #0C8D5D; border-top: 2px solid #eee; padding-top: 10px; }
+        .total-row { font-size: 18px; font-weight: bold; color: #6932BB; border-top: 2px solid #eee; padding-top: 10px; }
         .footer { margin-top: 50px; font-size: 11px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
         .validity { margin-top: 20px; font-size: 11px; color: #666; background: #fdfdfd; padding: 10px; border: 1px solid #f0f0f0; border-radius: 4px; }
         /* Watermark */
@@ -52,7 +52,7 @@
                     @if($quotation->sender_logo)
                         <img src="{{ public_path('storage/' . $quotation->sender_logo) }}" class="logo">
                     @else
-                        <h2 style="color: #0C8D5D; margin: 0;">{{ $quotation->sender_name }}</h2>
+                        <h2 style="color: #6932BB; margin: 0;">{{ $quotation->sender_name }}</h2>
                     @endif
                 </td>
                 <td class="title">QUOTATION</td>

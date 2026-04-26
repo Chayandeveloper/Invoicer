@@ -55,7 +55,8 @@
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Amount Received (Rs.)</label>
                             <input type="number" name="amount" id="amount" step="0.01" required
                                 value="{{ isset($selectedInvoice) ? $selectedInvoice->balance : '' }}"
-                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-black focus:ring-primary focus:border-primary p-4 text-primary">
+                                class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-black focus:ring-primary focus:border-primary p-4 text-primary"
+                                oninput="updateBreakage()">
                             
                             <div id="balance-summary" class="hidden mt-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
                                 <div class="flex justify-between text-[10px] font-black uppercase tracking-tight">
@@ -111,11 +112,52 @@
 
                     <div class="border-t border-gray-50 pt-6">
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Client Selection (Received From)</label>
-                        <select id="client_select" onchange="populateFromClient()"
+                        
+                        <!-- Credit Note Section -->
+                        <div id="credit-note-section" class="hidden mb-6 bg-indigo-50/30 p-6 rounded-[2rem] border-2 border-dashed border-indigo-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px]">
+                                        <i class="fas fa-undo-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-black text-gray-900 leading-none">Available Credit</h3>
+                                        <p class="text-[10px] text-indigo-600 font-bold mt-1">Client has ₹<span id="available-credit-display">0.00</span> in credit notes</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="use_credit" id="use_credit_checkbox" value="1" class="sr-only peer" onchange="toggleCreditApplication()">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Apply Credit</span>
+                                </div>
+                            </div>
+
+                            <div id="credit-amount-input-div" class="hidden animate-slide-up">
+                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">Amount to Deduct from Credit</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">₹</span>
+                                    <input type="number" name="credit_amount" id="credit_amount" step="0.01" 
+                                        class="w-full border-gray-100 bg-white rounded-xl text-xs font-black focus:ring-primary focus:border-primary p-4 pl-8"
+                                        placeholder="0.00" oninput="updateBreakage()">
+                                </div>
+                                <p class="mt-2 text-[9px] text-gray-400 italic">This amount will be deducted from client's credit balance and applied to this invoice.</p>
+                                
+                                <div id="credit-breakage-summary" class="hidden mt-4 p-4 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-200">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-[10px] font-black uppercase tracking-widest opacity-70">Net Cash Payable</span>
+                                        <span class="text-xl font-black" id="net-cash-display">₹ 0.00</span>
+                                    </div>
+                                    <p class="text-[9px] font-bold opacity-60 mt-1">This is the actual cash/bank amount you should collect.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <select name="client_id" id="client_select" onchange="populateFromClient()"
                             class="w-full border-gray-100 bg-gray-50 rounded-xl text-xs font-bold focus:ring-primary focus:border-primary p-4 mb-4">
                             <option value="">-- Manual Entry / No Client --</option>
                             @foreach($clients as $client)
-                                <option value="{{ $client->id }}" data-name="{{ $client->name }}" data-logo="{{ $client->logo }}">
+                                <option value="{{ $client->id }}" data-name="{{ $client->name }}" data-logo="{{ $client->logo }}" data-credit="{{ $client->available_credit }}">
                                     {{ $client->name }}
                                 </option>
                             @endforeach
@@ -203,15 +245,112 @@
             const invoiceSelect = document.getElementById('invoice_id');
             const selectedOption = select.options[select.selectedIndex];
             
+            const creditSection = document.getElementById('credit-note-section');
+            const creditDisplay = document.getElementById('available-credit-display');
+            const creditInput = document.getElementById('credit_amount');
+            const checkbox = document.getElementById('use_credit_checkbox');
+
             if (selectedOption.value) {
                 document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
                 document.getElementById('client_logo').value = selectedOption.getAttribute('data-logo');
+                
+                const credit = parseFloat(selectedOption.getAttribute('data-credit')) || 0;
+                if (credit > 0) {
+                    creditSection.classList.remove('hidden');
+                    creditDisplay.innerText = credit.toLocaleString(undefined, {minimumFractionDigits: 2});
+                    creditInput.max = credit;
+                } else {
+                    creditSection.classList.add('hidden');
+                    checkbox.checked = false;
+                    toggleCreditApplication();
+                }
+
                 // Clear invoice selection if manual client is picked
                 invoiceSelect.value = "";
                 document.getElementById('amount').value = '';
             } else {
                 document.getElementById('client_name').value = '';
                 document.getElementById('client_logo').value = '';
+                creditSection.classList.add('hidden');
+                checkbox.checked = false;
+                toggleCreditApplication();
+            }
+        }
+
+        function toggleCreditApplication() {
+            const checkbox = document.getElementById('use_credit_checkbox');
+            const inputDiv = document.getElementById('credit-amount-input-div');
+            const creditInput = document.getElementById('credit_amount');
+            
+            if (checkbox.checked) {
+                inputDiv.classList.remove('hidden');
+            } else {
+                inputDiv.classList.add('hidden');
+                creditInput.value = '';
+            }
+            updateBreakage();
+        }
+
+        function updateBreakage() {
+            const amountInput = document.getElementById('amount');
+            const creditInput = document.getElementById('credit_amount');
+            const checkbox = document.getElementById('use_credit_checkbox');
+            const invoiceSelect = document.getElementById('invoice_id');
+            const selectedInvoice = invoiceSelect.options[invoiceSelect.selectedIndex];
+            
+            const breakageDiv = document.getElementById('credit-breakage-summary');
+            const netCashDisplay = document.getElementById('net-cash-display');
+            
+            if (checkbox.checked && creditInput.value > 0) {
+                const amount = parseFloat(amountInput.value) || 0;
+                const credit = parseFloat(creditInput.value) || 0;
+                
+                if (amount > 0) {
+                    breakageDiv.classList.remove('hidden');
+                    const net = Math.max(0, amount - credit);
+                    netCashDisplay.innerText = '₹ ' + net.toLocaleString(undefined, {minimumFractionDigits: 2});
+                } else {
+                    breakageDiv.classList.add('hidden');
+                }
+            } else {
+                breakageDiv.classList.add('hidden');
+            }
+        }
+
+        // Extend updateFromInvoice to also check credit for the client linked to invoice
+        const originalUpdateFromInvoice = updateFromInvoice;
+        updateFromInvoice = function() {
+            originalUpdateFromInvoice();
+            
+            const select = document.getElementById('invoice_id');
+            const selectedOption = select.options[select.selectedIndex];
+            const clientSelect = document.getElementById('client_select');
+            const creditSection = document.getElementById('credit-note-section');
+            const creditDisplay = document.getElementById('available-credit-display');
+            const creditInput = document.getElementById('credit_amount');
+            const checkbox = document.getElementById('use_credit_checkbox');
+
+            if (selectedOption.value) {
+                const clientName = selectedOption.getAttribute('data-client-name');
+                // Find client by name in clientSelect to get credit info
+                let clientFound = false;
+                for (let i = 0; i < clientSelect.options.length; i++) {
+                    if (clientSelect.options[i].getAttribute('data-name') === clientName) {
+                        const credit = parseFloat(clientSelect.options[i].getAttribute('data-credit')) || 0;
+                        if (credit > 0) {
+                            creditSection.classList.remove('hidden');
+                            creditDisplay.innerText = credit.toLocaleString(undefined, {minimumFractionDigits: 2});
+                            creditInput.max = credit;
+                            clientFound = true;
+                        }
+                        break;
+                    }
+                }
+                if (!clientFound) {
+                    creditSection.classList.add('hidden');
+                    checkbox.checked = false;
+                    toggleCreditApplication();
+                }
             }
         }
     </script>

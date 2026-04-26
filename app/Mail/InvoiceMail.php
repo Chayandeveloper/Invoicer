@@ -24,8 +24,9 @@ class InvoiceMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $type = $this->invoice->invoice_type === 'proforma' ? 'Proforma Invoice' : 'Invoice';
         return new Envelope(
-            subject: 'Invoice #' . $this->invoice->invoice_number . ' from ' . $this->invoice->sender_name,
+            subject: $type . ' #' . $this->invoice->invoice_number . ' from ' . $this->invoice->sender_name,
         );
     }
 
@@ -40,8 +41,9 @@ class InvoiceMail extends Mailable
     {
         $pdf = Pdf::loadView('invoices.pdf', ['invoice' => $this->invoice]);
 
+        $filename = ($this->invoice->invoice_type === 'proforma' ? 'Proforma-' : 'Invoice-') . $this->invoice->invoice_number . '.pdf';
         return [
-            Attachment::fromData(fn() => $pdf->output(), 'Invoice-' . $this->invoice->invoice_number . '.pdf')
+            Attachment::fromData(fn() => $pdf->output(), $filename)
                 ->withMime('application/pdf'),
         ];
     }

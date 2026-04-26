@@ -17,16 +17,22 @@ class DashboardController extends Controller
     public function index()
     {
         // Statistics
-        $totalRevenue = auth()->user()->invoices()->where('status', 'Paid')->sum('total');
+        $totalInvoiceRevenue = auth()->user()->invoices()->where('status', 'Paid')->sum('total');
+        $totalReceiptRevenue = auth()->user()->salesReceipts()->sum('amount');
+        $totalRevenue = $totalInvoiceRevenue + $totalReceiptRevenue;
+
         $pendingRevenue = auth()->user()->invoices()->where('status', '!=', 'Paid')->sum('total');
-        $totalPayments = auth()->user()->payments()->sum('amount');
+        
+        $totalPaymentsFromInvoices = auth()->user()->payments()->sum('amount');
+        $totalPayments = $totalPaymentsFromInvoices + $totalReceiptRevenue; // Receipts are also considered as payments received
+        
         $totalExpenses = auth()->user()->expenses()->where('status', 'Paid')->sum('amount');
         $pendingExpenses = auth()->user()->expenses()->where('status', 'Pending')->sum('amount');
         $netProfit = $totalPayments - $totalExpenses; // Using actual payments for liquid profit
 
         $invoiceCount = auth()->user()->invoices()->count();
         $quotationCount = auth()->user()->quotations()->count();
-        $paymentCount = auth()->user()->payments()->count();
+        $paymentCount = auth()->user()->payments()->count() + auth()->user()->salesReceipts()->count();
         $clientCount = auth()->user()->clients()->count();
 
         // Recent Activity
@@ -35,7 +41,7 @@ class DashboardController extends Controller
         $recentPayments = auth()->user()->payments()->latest()->take(5)->get();
 
         // Monthly Revenue & Expenses (last 6 months)
-        $monthlyRevenue = auth()->user()->invoices()->where('status', 'Paid')
+        $monthlyInvoiceRevenue = auth()->user()->invoices()->where('status', 'Paid')
             ->where('invoice_date', '>=', Carbon::now()->subMonths(6))
             ->select(
                 DB::raw("DATE_FORMAT(invoice_date, '%b %Y') as month"),
@@ -43,30 +49,85 @@ class DashboardController extends Controller
                 DB::raw('max(invoice_date) as max_date')
             )
             ->groupBy('month')
-            ->orderBy('max_date', 'asc')
             ->get();
 
+        $monthlyReceiptRevenue = auth()->user()->salesReceipts()
+            ->where('receipt_date', '>=', Carbon::now()->subMonths(6))
+            ->select(
+                DB::raw("DATE_FORMAT(receipt_date, '%b %Y') as month"),
+                DB::raw('sum(amount) as total'),
+                DB::raw('max(receipt_date) as max_date')
+            )
+            ->groupBy('month')
+            ->get();
+
+        // Merge and group by month for the chart
+        $monthlyRevenueMerged = collect();
+        $allMonths = $monthlyInvoiceRevenue->pluck('month')
+            ->merge($monthlyReceiptRevenue->pluck('month'))
+            ->unique();
+        
+        foreach ($allMonths as $month) {
+            $invTotal = $monthlyInvoiceRevenue->where('month', $month)->first()->total ?? 0;
+            $recTotal = $monthlyReceiptRevenue->where('month', $month)->first()->total ?? 0;
+            $maxDate = max(
+                $monthlyInvoiceRevenue->where('month', $month)->first()->max_date ?? '0000-00-00',
+                $monthlyReceiptRevenue->where('month', $month)->first()->max_date ?? '0000-00-00'
+            );
+            
+            $monthlyRevenueMerged->push((object)[
+                'month' => $month,
+                'total' => $invTotal + $recTotal,
+                'max_date' => $maxDate
+            ]);
+        }
+        $monthlyRevenue = $monthlyRevenueMerged->sortBy('max_date');
+
         // Growth Calculation (Current vs Previous Month)
-        $currentMonthRevenue = auth()->user()->invoices()->where('status', 'Paid')
+        $currentMonthInvoiceRevenue = auth()->user()->invoices()->where('status', 'Paid')
             ->whereMonth('invoice_date', Carbon::now()->month)
             ->whereYear('invoice_date', Carbon::now()->year)
             ->sum('total');
+        $currentMonthReceiptRevenue = auth()->user()->salesReceipts()
+            ->whereMonth('receipt_date', Carbon::now()->month)
+            ->whereYear('receipt_date', Carbon::now()->year)
+            ->sum('amount');
+        $currentMonthRevenue = $currentMonthInvoiceRevenue + $currentMonthReceiptRevenue;
 
-        $prevMonthRevenue = auth()->user()->invoices()->where('status', 'Paid')
+        $prevMonthInvoiceRevenue = auth()->user()->invoices()->where('status', 'Paid')
             ->whereMonth('invoice_date', Carbon::now()->subMonth()->month)
             ->whereYear('invoice_date', Carbon::now()->subMonth()->year)
             ->sum('total');
+        $prevMonthReceiptRevenue = auth()->user()->salesReceipts()
+            ->whereMonth('receipt_date', Carbon::now()->subMonth()->month)
+            ->whereYear('receipt_date', Carbon::now()->subMonth()->year)
+            ->sum('amount');
+        $prevMonthRevenue = $prevMonthInvoiceRevenue + $prevMonthReceiptRevenue;
 
         $revenueGrowth = $prevMonthRevenue > 0
             ? (($currentMonthRevenue - $prevMonthRevenue) / $prevMonthRevenue) * 100
             : ($currentMonthRevenue > 0 ? 100 : 0);
 
-        // Top Clients
-        $topClients = auth()->user()->invoices()->select('client_name', DB::raw('sum(total) as revenue'))
+        // Top Clients (Aggregate from Invoices and Receipts)
+        $invoiceTopClients = auth()->user()->invoices()->select('client_name', DB::raw('sum(total) as revenue'))
             ->groupBy('client_name')
-            ->orderByDesc('revenue')
-            ->take(5)
             ->get();
+            
+        $receiptTopClients = auth()->user()->salesReceipts()->select('client_name', DB::raw('sum(amount) as revenue'))
+            ->groupBy('client_name')
+            ->get();
+            
+        $topClients = $invoiceTopClients->merge($receiptTopClients)
+            ->groupBy('client_name')
+            ->map(function($group) {
+                return (object)[
+                    'client_name' => $group->first()->client_name,
+                    'revenue' => $group->sum('revenue')
+                ];
+            })
+            ->sortByDesc('revenue')
+            ->take(5)
+            ->values();
 
         // Expense Breakdown
         $expenseBreakdown = auth()->user()->expenses()->select('category', DB::raw('sum(amount) as total'))
